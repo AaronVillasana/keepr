@@ -1,0 +1,14 @@
+import {readFileSync,writeFileSync,mkdirSync,readdirSync,rmSync,copyFileSync} from 'node:fs';
+import {execFileSync} from 'node:child_process';
+import path from 'node:path';
+import {build} from 'esbuild';
+import {gzipSync} from 'node:zlib';
+execFileSync('npm',['run','build'],{stdio:'inherit'});
+const types={'.onnx':'application/octet-stream','.wasm':'application/wasm','.mjs':'text/javascript; charset=utf-8','.txt':'text/plain; charset=utf-8','.md':'text/plain; charset=utf-8','.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.svg':'image/svg+xml','.webp':'image/webp','.jpg':'image/jpeg','.ttf':'font/ttf','.woff2':'font/woff2'};
+const files={};function walk(dir){for(const f of readdirSync(dir,{withFileTypes:true})){const name=path.join(dir,f.name);if(f.name==='ingredients-yolov8x-v2.onnx')continue;if(f.isDirectory())walk(name);else{const ext=path.extname(name);if(types[ext]){const compress=['.onnx','.wasm'].includes(ext);const bytes=readFileSync(name);files['/'+path.relative('dist',name)]={type:types[ext],...(compress?{encoding:'gzip'}:{}),data:(compress?gzipSync(bytes,{level:9}):bytes).toString('base64')};}}}}walk('dist');
+writeFileSync('worker/static.generated.mjs','export const staticFiles='+JSON.stringify(files)+';');
+await build({entryPoints:['worker/index.mjs'],bundle:true,format:'esm',platform:'neutral',target:'es2022',outfile:'.openai/worker.tmp.mjs'});
+rmSync('dist',{recursive:true});mkdirSync('dist/server',{recursive:true});mkdirSync('dist/.openai',{recursive:true});
+copyFileSync('.openai/worker.tmp.mjs','dist/server/index.js');copyFileSync('.openai/hosting.json','dist/.openai/hosting.json');
+rmSync('.openai/worker.tmp.mjs');
+console.log('Keepr: Worker and static assets packaged.');

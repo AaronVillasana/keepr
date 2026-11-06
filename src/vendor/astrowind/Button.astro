@@ -1,0 +1,7 @@
+---
+// Adapted from AstroWind, onWidget, MIT. See LICENSE.md in this directory.
+const { variant = 'secondary', target, text, class: className = '', type, ...rest } = Astro.props;
+const variants = {primary:'primary',secondary:'secondary',tertiary:'text-button',link:'text-button'};
+const classes = [variants[variant] || '',className].filter(Boolean).join(' ');
+---
+{type ? <button type={type} class={classes} {...rest}>{text}<slot /></button> : <a class={classes} {...(target ? {target,rel:'noopener noreferrer'} : {})} {...rest}>{text}<slot /></a>}

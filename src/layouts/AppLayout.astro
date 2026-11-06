@@ -1,0 +1,12 @@
+---
+import Sidebar from "../components/Sidebar.astro";
+---
+<!doctype html>
+<html lang="es">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#f9f6ee"><meta name="description" content="Organiza tu refri y descubre qué cocinar con lo que ya tienes."><link rel="icon" type="image/svg+xml" href="/assets/keepr-mark.svg"><title>Keepr · Aprovecha lo que tienes</title><link rel="preload" href="/assets/fonts/newsreader-variable.ttf" as="font" type="font/ttf" crossorigin><link rel="preload" href="/assets/fonts/manrope-variable.ttf" as="font" type="font/ttf" crossorigin><link rel="stylesheet" href="/styles.css"></head>
+<body>
+<a class="skip-link" href="#content">Saltar al contenido</a>
+<Sidebar />
+<main><header><div class="header-location"><a class="mobile-brand" href="#inicio" aria-label="Keepr, inicio"><img src="/assets/keepr-logo.svg" width="96" height="36" alt=""></a><span id="breadcrumb">Mi cocina</span></div><div><span class="demo-label">Espacio personal</span><button class="icon-button" id="about" aria-label="Acerca de este prototipo">?</button></div></header><section id="content" tabindex="-1"><slot /></section><div class="bottom-note">Keepr · Menos desperdicio, más cocina.</div></main>
+<dialog id="modal" aria-labelledby="modal-kicker"><div class="modal-head"><span class="eyebrow" id="modal-kicker">KEEPR</span><button id="close-modal" class="icon-button" aria-label="Cerrar ventana">×</button></div><div id="modal-body"></div></dialog><div id="toast" role="status" aria-live="polite"></div>
+<script is:inline src="/food-catalog.js"></script><script is:inline src="/kitchen.js"></script><script is:inline src="/detector-core.js"></script><script is:inline src="/local-detector.js"></script><script is:inline src="/app.js"></script></body></html>

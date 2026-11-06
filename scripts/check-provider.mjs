@@ -1,0 +1,4 @@
+// Optional live integration check. Reads .env locally; never logs keys or provider payloads.
+import {readFileSync} from 'node:fs';import {analyzeImages} from '../vision.mjs';
+const vars=Object.fromEntries(readFileSync('.env','utf8').split(/\r?\n/).filter(l=>/^\s*[A-Z_]+=/.test(l)).map(l=>{const i=l.indexOf('=');return [l.slice(0,i).trim(),l.slice(i+1).trim().replace(/^(['"])(.*)\1$/,'$2')];}));
+try{const today=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Mexico_City',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());const result=await analyzeImages(['data:image/jpeg;base64,'+readFileSync('public/assets/market.jpg').toString('base64')],{today,apiKey:vars.GEMINI_API_KEY,model:vars.GEMINI_MODEL,provider:'gemini',signal:AbortSignal.timeout(90000)});console.log(JSON.stringify({ok:true,count:result.items.length,notes:result.notes.length}));}catch(e){console.log(JSON.stringify({ok:false,status:e.status,error:e.message}));process.exitCode=1;}
