@@ -7,11 +7,11 @@ ort.env.logLevel='error';
 let session;
 const modelURL='/assets/detector/ingredients-yolov8x-v2.onnx';
 async function modelBytes(){
- let cache;try{cache=await caches.open('keepr-detectors-v2');const saved=await cache.match(modelURL);if(saved){const bytes=new Uint8Array(await saved.arrayBuffer());if(bytes.length===68716526){self.postMessage({progress:'Cargando el detector guardado en este dispositivo…'});return bytes;}await cache.delete(modelURL);}}catch{}
- self.postMessage({progress:'Descargando detector ampliado (~60 MB). Solo se descarga la primera vez si hay espacio disponible…'});
+ let cache;try{cache=await caches.open('keepr-detectors-v2');const saved=await cache.match(modelURL);if(saved){const bytes=new Uint8Array(await saved.arrayBuffer());if(bytes.length===68716526){self.postMessage({progress:'Preparando análisis…'});return bytes;}await cache.delete(modelURL);}}catch{}
+ self.postMessage({progress:'Preparando el primer análisis. Puede tardar un poco…'});
  const response=await fetch(modelURL);if(!response.ok)throw new Error('El detector ampliado no está disponible. Revisa tu conexión y vuelve a intentarlo.');
  const reader=response.body.getReader(),chunks=[];let total=0,last=0;
- while(true){const {value,done}=await reader.read();if(done)break;chunks.push(value);total+=value.length;if(total-last>1024*1024){last=total;self.postMessage({progress:`Descargando detector: ${Math.min(99,Math.round(total/68716526*100))}%… Las fotos permanecen en tu dispositivo.`});}}
+ while(true){const {value,done}=await reader.read();if(done)break;chunks.push(value);total+=value.length;if(total-last>1024*1024){last=total;self.postMessage({progress:`Preparando análisis: ${Math.min(99,Math.round(total/68716526*100))}%…`});}}
  const bytes=new Uint8Array(total);let offset=0;for(const chunk of chunks){bytes.set(chunk,offset);offset+=chunk.length;}
  if(total!==68716526)throw new Error('La descarga del detector quedó incompleta. Intenta nuevamente.');
  try{if(cache)await cache.put(modelURL,new Response(bytes,{headers:{'Content-Type':'application/octet-stream'}}));}catch{}
@@ -25,13 +25,13 @@ async function inputTensor(src){
 self.onmessage=async({data})=>{
  try{
   if(!Array.isArray(data.images)||!data.images.length||data.images.length>3||data.images.some(s=>typeof s!=='string'||!/^data:image\/(jpeg|png|webp);base64,/.test(s)))throw new Error('Selecciona entre una y tres fotos válidas.');
-  if(!session){self.postMessage({progress:'Preparando el detector en este dispositivo. La primera carga tarda un poco…'});const bytes=await modelBytes();self.postMessage({progress:'Preparando el detector. En celulares puede tardar un poco…'});session=await ort.InferenceSession.create(bytes,{executionProviders:['wasm'],graphOptimizationLevel:'all'});}
+  if(!session){self.postMessage({progress:'Preparando análisis…'});const bytes=await modelBytes();self.postMessage({progress:'Ya casi está. Preparando tus fotos…'});session=await ort.InferenceSession.create(bytes,{executionProviders:['wasm'],graphOptimizationLevel:'all'});}
   const detections=[];
   for(let i=0;i<data.images.length;i++){
-   self.postMessage({progress:`Analizando foto ${i+1} de ${data.images.length} en tu dispositivo…`});
+   self.postMessage({progress:`Analizando foto ${i+1} de ${data.images.length}…`});
    const input=await inputTensor(data.images[i]);let output;
    try{output=await session.run({images:input});const tensor=output[session.outputNames[0]];detections.push(KeeprDetection.decode(tensor.data,tensor.dims));}finally{input.dispose();if(output)Object.values(output).forEach(t=>t.dispose());}
   }
   self.postMessage({result:KeeprDetection.summarize(detections)});
- }catch(e){self.postMessage({error:'No se pudo ejecutar el detector local. Prueba con una foto más cercana o agrega los alimentos manualmente.'});}
+ }catch(e){self.postMessage({error:'No pudimos analizar esta foto. Prueba con una foto más cercana o agrega los alimentos manualmente.'});}
 };

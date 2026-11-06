@@ -1,3 +1,15 @@
+# Actualización 0.18 · Uso diario
+
+- Todos los alimentos detectados se seleccionan por defecto, incluidos los que requieren revisar el nombre. Desmarca los que no quieras guardar. Cantidad y fecha pueden quedar pendientes.
+- Icono vectorial específico para cada uno de los 82 alimentos.
+- Campos de fecha contenidos en las tarjetas móviles.
+- Interfaz sin avisos sobre proveedores ni configuración técnica.
+- Crear receta funciona sin claves con reglas culinarias y los ingredientes del inventario. Evita ingredientes ajenos, alimentos con fecha registrada superada y repeticiones. Si no hay una combinación compatible, pide agregar una base.
+
+Para actualizar por GitHub web, consulta LEEME_ACTUALIZACION.md. El modelo no cambia.
+
+Validación: 78 pruebas automatizadas y comprobación del servidor de Render; recorrido móvil a 390 px con selección, deselección, guardado y creación de receta. La cámara física y Safari deben comprobarse en el teléfono.
+
 # Actualización 0.17 · Publicación propia en Render
 
 Consulta PUBLICAR_EN_RENDER.md. Incluye configuración Free, Node 22.22.0, health check, servidor accesible desde Render y descarga del detector desde tu servicio. La publicación la realiza el propietario desde sus cuentas.

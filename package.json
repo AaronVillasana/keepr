@@ -1,8 +1,8 @@
 {
   "name": "keepr-mvp",
-  "version": "0.17.0",
+  "version": "0.18.0",
   "private": true,
-  "description": "Keepr: inventario con reconocimiento fotogr\u00e1fico",
+  "description": "Keepr: inventario con reconocimiento fotográfico",
   "scripts": {
     "start": "npm run build && node server.mjs",
     "build": "node scripts/prepare-public.mjs && astro build",

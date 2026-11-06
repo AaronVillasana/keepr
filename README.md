@@ -1,8 +1,14 @@
+# Cambios actuales · 0.18
+
+Todos los resultados de detección vienen seleccionados, incluidos los nombres por confirmar. Cada uno de los 82 alimentos tiene su propio icono. Los formularios de fecha se ajustan al móvil y la interfaz muestra únicamente información útil para el cliente. Crear receta funciona sin claves con un planificador de reglas culinarias (`recipe-planner.mjs`).
+
+Las secciones de versiones anteriores que siguen son un historial del proyecto. Para publicar la versión actual, consulta PUBLICAR_EN_RENDER.md.
+
 # Keepr · Mi cocina
 
 MVP de inventario de alimentos, fotografía asistida y recetas. Astro 7.4.1, JavaScript y servidor Node; lista para publicar desde tus propias cuentas de GitHub y Render.
 
-## Publicar en Render · actualización 0.17
+## Publicar en Render · actualización 0.18
 
 Sigue `PUBLICAR_EN_RENDER.md`. Incluye `render.yaml`, Node fijado, arranque sin recompilar y `/healthz`. El servidor acepta la URL HTTPS que Render asigna y escucha en `0.0.0.0` al ejecutarse allí. El detector se sirve desde tu propio servicio; no depende del alojamiento anterior. No incluye claves ni activa proveedores de pago.
 
@@ -15,7 +21,7 @@ npm install
 npm start
 ```
 
-Abre http://localhost:3000. Las fotos funcionan con el detector local sin `.env`. Solo para generar recetas personalizadas, conserva tu `.env` anterior en esta carpeta. Si no lo tienes, copia `.env.example` como `.env` y configura tu proveedor. La entrega no incluye claves.
+Abre http://localhost:3000. Las fotos funcionan con el detector local sin `.env`. Crear receta también funciona sin claves mediante reglas culinarias. Los proveedores externos son opcionales; la entrega no incluye credenciales.
 
 ## Cámara móvil: actualización 0.16
 
@@ -49,7 +55,7 @@ Las recetas admiten OpenRouter con modelos alternativos y respaldo directo en el
 
 ## Recetas: actualización 0.7
 
-La pantalla de recetas usa una lista sin ilustraciones decorativas. El botón Crear receta solicita una sola preparación a la API a partir del inventario actual, con cantidades y fechas. Las ideas del recetario siguen actualizándose sin llamadas a IA. La app muestra a qué proveedor enviará los datos antes de pulsar el botón.
+La pantalla de recetas usa una lista sin ilustraciones decorativas. Crear receta propone una preparación mediante reglas culinarias compatibles con el inventario, sin configurar proveedores. No añade ingredientes ausentes; si no existe una combinación adecuada, solicita una base. Los proveedores externos siguen siendo opcionales para el propietario.
 
 Las recetas creadas se guardan localmente en `keepr-recipes-v1` y se recuperan solo si el inventario y la fecha siguen coincidiendo. Al cambiar ingredientes o cantidades, dejan de mostrarse las preparaciones generadas con el inventario anterior. La generación no se ejecuta automáticamente. Se evitan solicitudes simultáneas y respuestas tardías para un inventario obsoleto.
 
@@ -69,7 +75,7 @@ Validación de esta actualización: 37 pruebas automatizadas con proveedores sim
 
 ## Qué sigue dependiendo de servicios externos
 
-Las fotos se analizan en el dispositivo con YOLO y no se envían a Gemini. El detector se descarga desde tu propio servicio. Solo la generación opcional de recetas nuevas depende de un proveedor externo configurado por ti; sin claves, el recetario incluido sigue disponible.
+Las fotos se analizan en el dispositivo con YOLO y no se envían a Gemini. El detector se descarga desde tu propio servicio. Crear receta y el recetario incluido funcionan sin claves. El propietario puede configurar un proveedor externo opcional.
 
 El inventario vive en este navegador. No hay cuentas propias, sincronización entre dispositivos, notificaciones automáticas ni aplicación móvil nativa. Las fechas no certifican frescura. Las recetas del recetario son orientativas: ajusta porciones y revisa cantidades y estado de los alimentos. No es una PWA instalable ni garantiza recarga de la página sin internet.
 

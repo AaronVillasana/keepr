@@ -42,7 +42,7 @@ También se incluye `render.yaml` para quien prefiera **New → Blueprint**: def
 - En tu celular, abre el enlace HTTPS de Render. Ve a **Mi inventario → Agregar alimentos → Analizar fotos → Tomar foto**. Comprueba la cámara en tu dispositivo y revisa la vista previa.
 - La primera detección descarga aproximadamente 60 MB. Procura usar Wi-Fi y espera el progreso. Las fotos se analizan en el dispositivo.
 - Revisa los alimentos propuestos antes de guardarlos. El modelo cubre 82 nombres en español; no reconoce todos los alimentos ni determina cantidades, fechas o frescura.
-- En **Mis recetas**, las ideas incluidas dependen del inventario y funcionan sin clave de API.
+- En **Mis recetas**, pulsa **Crear receta**. El planificador combina ingredientes compatibles sin clave de API; también conserva el recetario incluido.
 - La dirección de tu app seguida de `/healthz` debe mostrar `ok`. `/api/status` debe indicar `provider: local-yolo` y `coverage: 82`.
 
 El inventario se guarda en el navegador de cada dispositivo, sin sincronización. Cambiar del enlace anterior a Render no transfiere automáticamente los alimentos guardados.
@@ -59,7 +59,7 @@ El detector y el recetario incluido no requieren una API de pago. **Crear receta
 - **Build fallido:** revisa Logs y que estén las tres partes `models/ingredients-yolov8x-v2.onnx.gz.part01`, `part02` y `part03`.
 - **No detecta puerto:** confirma `HOST=0.0.0.0` y el Start Command anterior. No uses `npm run dev` como arranque.
 - **No abre la cámara:** abre el enlace HTTPS directamente en Safari/Chrome, fuera del navegador interno de otra app. Puedes usar la galería si tu navegador no ofrece captura.
-- **Crear receta no está activado:** es lo esperado sin claves. Usa el recetario incluido.
+- **Crear receta no está activado:** confirma que subiste `recipe-planner.mjs` y `recipe-service.mjs` de la versión 0.18 y espera el nuevo deploy. Recarga la página.
 
 ## Actualizar
 

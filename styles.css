@@ -274,3 +274,15 @@ header{height:76px}#content{padding-top:32px}.primary,.secondary,.hero-button{bo
 /* Native camera capture and gallery share one review queue. */
 .photo-capture-box{padding:22px;border:1px solid #d8dfc8;background:#f4f5ea}.photo-source-actions{display:grid;grid-template-columns:1fr 1fr;gap:11px}.photo-source-actions button{min-height:50px;font-size:12px;justify-content:center;gap:9px}.photo-source-actions svg{width:19px;height:19px}.photo-source-hint{font-size:11px!important;color:var(--muted);line-height:1.8;margin-top:13px!important}.photo-count{font-size:11px!important;color:var(--muted);margin:12px 0 0!important}.photo-capture-box .photo-previews{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:17px}.selected-photo{margin:0;min-width:0;position:relative}.photo-previews .selected-photo img{width:100%;height:105px;object-fit:cover;border-radius:5px}.selected-photo button{position:absolute;top:4px;right:4px;min-width:36px;min-height:36px;border:1px solid #d6ddc7;border-radius:4px;background:#fffdf8f5;color:var(--ink);font-size:23px;line-height:1}.selected-photo figcaption{font-size:10px;color:var(--muted);margin-top:5px}.photo-capture-box input[hidden]{display:none!important}
 @media(max-width:760px){.photo-capture-box{padding:17px}.photo-source-actions{grid-template-columns:1fr;gap:10px}.photo-source-actions button{width:100%;min-height:50px;font-size:13px}.photo-source-hint{font-size:12px!important}.photo-capture-box .photo-previews{gap:9px}.photo-previews .selected-photo img{height:98px}.selected-photo button{min-width:44px;min-height:44px;top:1px;right:1px}}
+
+/* Date controls on iOS must shrink inside grid cells instead of using their intrinsic width. */
+#modal-body,#review-form,#detected-list,.detected-row,.form-row,.form-row>label{min-width:0;max-width:100%;box-sizing:border-box}
+.form-row{grid-template-columns:repeat(2,minmax(0,1fr))}
+.form-row>label{width:100%}
+#modal-body input:not([type=checkbox]),#modal-body select{display:block;min-width:0;max-width:100%;box-sizing:border-box}
+#modal-body input[type=date]{appearance:none;-webkit-appearance:none;inline-size:100%;width:100%;min-inline-size:0;max-inline-size:100%;overflow:hidden;text-align:left;min-height:48px}
+#modal-body input[type=date]::-webkit-date-and-time-value{min-width:0;text-align:left}
+.photo-status{margin:14px 0 0!important;color:var(--muted);font-size:12px!important;line-height:1.6}
+.photo-status[hidden]{display:none!important}
+.detector-coverage p{overflow-wrap:anywhere}
+@media(max-width:760px){.form-row{grid-template-columns:minmax(0,1fr)}.detected-row{width:100%}.detected-title{max-width:100%}.detected-title .badge{position:static;max-width:100%;white-space:normal}.food-line-icon svg{width:27px;height:27px}}

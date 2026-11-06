@@ -21,7 +21,7 @@ test('Servidor Render: origen público, health check, aislamiento y modelo compl
  assert.equal((await request('/healthz',{host:'internal-render-host'})).text,'ok');
  const page=await request('/');assert.equal(page.status,200);assert.match(page.text,/Keepr/);
  assert.equal((await request('/',{method:'HEAD'})).bytes,0);
- const status=await request('/api/status',{origin:'https://keepr-test.onrender.com'});assert.equal(status.status,200);assert.equal(JSON.parse(status.text).coverage,82);assert.equal(JSON.parse(status.text).recipes.configured,false);
+ const status=await request('/api/status',{origin:'https://keepr-test.onrender.com'});assert.equal(status.status,200);assert.equal(JSON.parse(status.text).coverage,82);assert.equal(JSON.parse(status.text).recipes.configured,true);
  assert.equal((await request('/api/status',{host:'keepr.example',origin:'https://keepr.example'})).status,200);
  assert.equal((await request('/api/status',{origin:'https://other.example'})).status,403);
  assert.equal((await request('/api/status',{host:'other.example'})).status,403);
