@@ -1,0 +1,45 @@
+'use strict';
+// Reconocimiento local por catálogo y errores pequeños. No es visión artificial.
+const FOOD_CATALOG = [
+ ['Jitomate','🍅','jitomates|jitmate|tomate rojo|tomates rojos|tomate|tomates|tomato|tomatoes'],
+ ['Tomatillo','🟢','tomate verde|tomates verdes|tomatillos'],
+ ['Espinaca','🥬','espinacas|spinach'],['Aguacate','🥑','aguacates|palta|paltas|avocado'],
+ ['Huevo','🥚','huevos|egg|eggs'],['Tortilla','🫓','tortillas|tortilla de maiz|tortillas de maiz|tortilla de harina|tortillas de harina'],
+ ['Pepino','🥒','pepinos|cucumber'],['Manzana','🍎','manzanas|apple|apples'],['Plátano','🍌','platanos|banana|bananas|banano'],
+ ['Leche','🥛','milk|leche entera|leche deslactosada'],['Queso','🧀','quesos|cheese|queso panela|queso manchego'],
+ ['Yogur','🥛','yogurt|yoghurt|yogures|yogurt natural'],['Mantequilla','🧈','butter'],
+ ['Pan','🍞','panes|pan de caja|bread'],['Arroz','🍚','rice|arroz blanco|arroz integral'],
+ ['Pasta','🍝','pastas|espagueti|spaghetti|macarrones'],['Avena','🌾','oats|hojuelas de avena'],
+ ['Frijol','🫘','frijoles|frijoles negros|frijoles bayos|beans'],['Lenteja','🫘','lentejas|lentils'],
+ ['Garbanzo','🫘','garbanzos|chickpeas'],['Pollo','🍗','chicken|pechuga de pollo|pechugas de pollo'],
+ ['Carne de res','🥩','res|bistec|bisteces|beef|carne molida de res'],['Cerdo','🥩','puerco|carne de cerdo|pork'],
+ ['Pescado','🐟','pescados|filete de pescado|fish'],['Atún','🐟','atun|tuna|atun en lata'],['Salmón','🐟','salmon'],
+ ['Camarón','🦐','camarones|gambas|shrimp'],['Jamón','🥓','jamon|ham'],['Tocino','🥓','bacon'],
+ ['Zanahoria','🥕','zanahorias|carrot'],['Papa','🥔','papas|patata|patatas|potato'],
+ ['Camote','🍠','camotes|batata|sweet potato'],['Cebolla','🧅','cebollas|onion'],['Ajo','🧄','ajos|garlic'],
+ ['Brócoli','🥦','brocoli|broccoli'],['Coliflor','🥦','coliflores|cauliflower'],
+ ['Lechuga','🥬','lechugas|lettuce'],['Repollo','🥬','col|coles|cabbage'],
+ ['Calabacita','🥒','calabacitas|calabacin|calabacines|zucchini'],['Calabaza','🎃','calabazas|pumpkin'],
+ ['Berenjena','🍆','berenjenas|eggplant'],['Chile','🌶️','chiles|jalapeno|jalapenos|chile serrano|chiles serranos'],
+ ['Pimiento','🫑','pimientos|pimiento morron|pimientos morrones'],['Elote','🌽','elotes|maiz|corn'],
+ ['Champiñón','🍄','champinones|hongos|setas|mushroom|mushrooms'],['Nopal','🌵','nopales'],
+ ['Limón','🍋','limones|lima|limas|lime|lemon'],['Naranja','🍊','naranjas|orange'],
+ ['Mandarina','🍊','mandarinas'],['Fresa','🍓','fresas|frutilla|frutillas|strawberry'],
+ ['Uva','🍇','uvas|grapes'],['Sandía','🍉','sandia|watermelon'],['Melón','🍈','melon'],
+ ['Piña','🍍','pina|ananas|pineapple'],['Mango','🥭','mangos|mangoes'],['Pera','🍐','peras|pear'],
+ ['Durazno','🍑','duraznos|melocoton|melocotones|peach'],['Cereza','🍒','cerezas|cherry'],
+ ['Arándano','🫐','arandanos|blueberry|blueberries'],['Kiwi','🥝','kiwis'],['Coco','🥥','cocos|coconut'],
+ ['Cilantro','🌿','coriander'],['Perejil','🌿','parsley'],['Albahaca','🌿','basil'],
+ ['Nuez','🥜','nueces|walnut'],['Almendra','🥜','almendras|almond'],['Cacahuate','🥜','cacahuates|mani|peanut'],
+ ['Miel','🍯','honey'],['Sal','🧂','salt'],['Azúcar','🥄','azucar|sugar'],['Aceite','🫗','aceite de oliva|aceite vegetal|oil'],
+ ['Café','☕','cafe|coffee'],['Té','🍵','te|tea'],['Chocolate','🍫','chocolates'],['Galleta','🍪','galletas|cookies']
+].map(([name,emoji,aliases])=>({name,emoji,aliases:[name,...aliases.split('|')]}));
+const foodNormalize = s => String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9\s]/g,' ').replace(/\s+/g,' ').trim();
+function editDistance(a,b){const d=Array.from({length:a.length+1},()=>Array(b.length+1).fill(0));for(let i=0;i<=a.length;i++)d[i][0]=i;for(let j=0;j<=b.length;j++)d[0][j]=j;for(let i=1;i<=a.length;i++)for(let j=1;j<=b.length;j++){d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(a[i-1]!==b[j-1]));if(i>1&&j>1&&a[i-1]===b[j-2]&&a[i-2]===b[j-1])d[i][j]=Math.min(d[i][j],d[i-2][j-2]+1);}return d[a.length][b.length];}
+const foodAliases=FOOD_CATALOG.flatMap(food=>food.aliases.map(alias=>({food,alias:foodNormalize(alias)})));
+function resolveFood(value){const key=foodNormalize(value);if(!key)return null;const exact=foodAliases.find(x=>x.alias===key);if(exact)return {...exact.food,method:'exact'};
+ // Solo corrige un carácter en palabras de 5+ letras. Empates quedan sin clasificar.
+ if(key.length<5)return null;const candidates=new Map();for(const x of foodAliases){if(Math.abs(x.alias.length-key.length)>1)continue;if(editDistance(key,x.alias)<=1)candidates.set(x.food.name,x.food);}if(candidates.size===1)return {...[...candidates.values()][0],method:'approximate'};return null;}
+function sameFood(a,b){const ra=resolveFood(a),rb=resolveFood(b);return ra&&rb?ra.name===rb.name:foodNormalize(a)===foodNormalize(b);}
+function foodSearch(name,query){const q=foodNormalize(query);if(!q)return true;if(foodNormalize(name).includes(q))return true;const food=resolveFood(name);if(food&&food.aliases.some(a=>foodNormalize(a).includes(q)))return true;return sameFood(name,query);}
+function foodEmoji(name){return resolveFood(name)?.emoji||'🍽️';}
