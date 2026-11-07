@@ -7,7 +7,7 @@ test('los 82 nombres del detector tienen iconos vectoriales propios, sin recurri
 test('las pantallas de entrada, fotos y recetas presentan texto para clientes',async()=>{
  const ui=app();assert.equal(ui.run('state.items.length'),0);assert.match(ui.element('#content').innerHTML,/Escanear alimentos/);assert.doesNotMatch(ui.element('#content').innerHTML,/Resumen del inventario|Para usar primero/);ui.run('addOptions()');assert.doesNotMatch(ui.element('#modal-body').innerHTML,/Gemini|API|servicio de IA/);
  await ui.run('photoFlow()');assert.doesNotMatch(ui.element('#modal-body').innerHTML,/Gemini|API|91 etiquetas|detector local/);assert.equal(ui.element('#vision-status').hidden,true);
- await ui.run("page='recetas';refreshRecipes()");assert.doesNotMatch(ui.element('#content').innerHTML,/Gemini|OpenRouter|API|recipe-provider|recipe-row/);assert.match(ui.element('#content').innerHTML,/Tu próxima receta empieza aquí/);
+ await ui.run("page='recetas';refreshRecipes()");assert.doesNotMatch(ui.element('#content').innerHTML,/Gemini|OpenRouter|API|recipe-provider|recipe-row/);assert.match(ui.element('#content').innerHTML,/Aún no hay recetas/);
 });
 
 test('portada con inventario muestra búsqueda y distingue el recordatorio de una fecha registrada',()=>{
