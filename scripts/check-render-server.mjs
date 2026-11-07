@@ -20,6 +20,12 @@ test('Servidor Render: origen público, health check, aislamiento y modelo compl
  }
  assert.equal((await request('/healthz',{host:'internal-render-host'})).text,'ok');
  const page=await request('/');assert.equal(page.status,200);assert.match(page.text,/Keepr/);
+ assert(page.text.includes('apple-mobile-web-app-status-bar-style" content="black-translucent"'));
+ assert(page.text.includes('rel="manifest" href="/manifest.webmanifest"'));
+ const manifest=await request('/manifest.webmanifest');
+ assert.equal(manifest.status,200);
+ assert.equal(manifest.headers['content-type'],'application/manifest+json');
+ assert.equal(JSON.parse(manifest.text).display,'standalone');
  assert.equal((await request('/',{method:'HEAD'})).bytes,0);
  const portada=await request('/assets/keepr-portada.webp',{hash:true});
  assert.equal(portada.status,200);

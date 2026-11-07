@@ -1,4 +1,4 @@
-# Actualizar Keepr a 0.22.5
+# Actualizar Keepr a 0.22.6
 
 Este ZIP actualiza el repositorio existente de Keepr. Incluye los cambios de 0.21 y el nuevo diseño móvil. La 0.22.1 corrige la carga de la foto de Inicio y quita el desenfoque detrás del logo.
 
@@ -15,3 +15,5 @@ En 0.22.3, los botones de Inicio ocupan el ancho disponible en móvil. El select
 La 0.22.4 amplía la traducción del escáner y del formulario y unifica el fondo de la navegación inferior con la página.
 
 La 0.22.5 iguala la altura de las tres fotos de encabezado en móvil.
+
+La 0.22.6 suaviza el desvanecido de las tres fotos. Para ver la foto detrás de la hora y la batería, abre Keepr en Safari, elige Compartir → Agregar a pantalla de inicio, activa Abrir como app web si aparece y abre Keepr desde el icono.

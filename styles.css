@@ -385,7 +385,7 @@ header{height:76px}#content{padding-top:32px}.primary,.secondary,.hero-button{bo
  .section-art{display:block;position:absolute;inset:0 -22px auto;width:auto!important;height:var(--mobile-photo-height);pointer-events:none}
  .section-art img{display:block;width:100%;height:100%;object-fit:cover;object-position:center 39%}
  .photo-heading>div:not(.section-art){position:relative}
- .section-art:after,.home-simple .hero-art:after{content:'';display:block;position:absolute;inset:0;background:linear-gradient(180deg,#191b17dd 0%,transparent 32%,transparent 55%,#f9f6ee99 82%,var(--paper) 100%);pointer-events:none}
+ .section-art:after,.home-simple .hero-art:after{content:'';display:block;position:absolute;inset:0;background:linear-gradient(180deg,#191b17b3 0%,#191b1740 16%,transparent 32%),linear-gradient(180deg,transparent 39%,#f9f6ee0d 48%,#f9f6ee33 58%,#f9f6ee73 69%,#f9f6eebf 81%,#f9f6eef0 93%,var(--paper) 100%);pointer-events:none}
  .start-panel h2{font-family:Georgia,serif;font-size:22px;color:#201f1b}
  .start-panel p{font-size:14px}
  .empty-recipes .start-icon{color:#99452f}

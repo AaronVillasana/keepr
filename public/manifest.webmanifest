@@ -1,0 +1,13 @@
+{
+  "id": "/",
+  "name": "Keepr",
+  "short_name": "Keepr",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f9f6ee",
+  "theme_color": "#25271d",
+  "icons": [
+    {"src": "/assets/keepr-mark.svg", "sizes": "any", "type": "image/svg+xml"}
+  ]
+}
