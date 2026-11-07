@@ -1,3 +1,11 @@
+# Actualización 0.20 · Un recorrido más corto
+
+Inicio cambia según el inventario. El escaneo abre una lista de confirmación con detalles opcionales. Algunos alimentos reciben recordatorios estimados de revisión. Los detalles del inventario concentran edición y consumo. Las recetas explican qué alimento conviene revisar o aprovechar primero.
+
+# Actualización 0.19 · Cocina con lo que tienes
+
+Primera visita con inventario vacío. Buscar ideas propone hasta tres preparaciones por búsqueda. Usa subconjuntos del inventario, prioriza las fechas registradas más próximas e incluye más opciones como tacos, tostadas y tortilla de papa. Sigue el proceso de LEEME_ACTUALIZACION.md.
+
 # Actualización 0.18 · Uso diario
 
 - Todos los alimentos detectados se seleccionan por defecto, incluidos los que requieren revisar el nombre. Desmarca los que no quieras guardar. Cantidad y fecha pueden quedar pendientes.

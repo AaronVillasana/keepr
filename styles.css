@@ -286,3 +286,33 @@ header{height:76px}#content{padding-top:32px}.primary,.secondary,.hero-button{bo
 .photo-status[hidden]{display:none!important}
 .detector-coverage p{overflow-wrap:anywhere}
 @media(max-width:760px){.form-row{grid-template-columns:minmax(0,1fr)}.detected-row{width:100%}.detected-title{max-width:100%}.detected-title .badge{position:static;max-width:100%;white-space:normal}.food-line-icon svg{width:27px;height:27px}}
+
+/* One primary action on the home screen and compact review cards. */
+.home-simple { grid-template-columns: minmax(0, 1fr); }
+.home-simple .hero-copy h1 { margin: 0; font-size: clamp(2rem, 4vw, 4rem); line-height: 1.06; }
+.home-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; }
+.home-actions .text-button { color: inherit; }
+.home-priority { margin-top: 20px; }
+.quick-review { display: grid; gap: 8px; margin-bottom: 12px; }
+.quick-review-row { display: grid; grid-template-columns: 44px minmax(0, 1fr); align-items: start; border: 1px solid var(--line); border-radius: 12px; }
+.quick-check { min-height: 48px; display: grid; place-items: center; margin: 0; }
+.quick-review-row summary { cursor: pointer; min-height: 48px; padding: 12px 12px 12px 0; overflow-wrap: anywhere; }
+.quick-fields { padding: 0 12px 12px 0; }
+.quick-fields input { width: 100%; min-width: 0; }
+.food-details { justify-self: start; min-height: 44px; }
+.recipe-reason { display: block; margin-top: 6px; }
+.home-simple .hero-copy h1 { font-family: var(--display); font-weight: 400; letter-spacing: -.035em; }
+.home-actions .hero-button { margin-top: 0; }
+.home-actions .text-button { min-height: 44px; }
+.home-priority .priority-list { display: grid; gap: 0; }
+.home-priority .priority-date { display: inline; }
+.home-priority .priority-item { min-height: 48px; }
+#modal-body .quick-check { display: grid; place-items: center; margin: 0; cursor: pointer; }
+#modal-body .quick-check input { width: 18px; height: 18px; margin: 0; }
+.manual-details summary { cursor: pointer; padding: 10px 0; }
+@media (max-width: 760px) {
+ .compact-food .food-details { grid-column: 2; }
+ .home-priority .priority-item { grid-template-columns: 32px minmax(0, 1fr) auto; gap: 8px; }
+ .home-priority .priority-date { white-space: normal; text-align: right; }
+}
+.nav-count[hidden] { display: none; }

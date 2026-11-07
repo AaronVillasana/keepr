@@ -33,3 +33,30 @@ test('prioriza ingredientes con fechas cercanas y respeta la cancelación',async
  const controller=new AbortController();controller.abort();await assert.rejects(generateAvailableRecipes(items,{env:{},today,signal:controller.signal}),/canceló/);
 });
 test('rechaza parámetros inválidos antes de planificar',()=>{for(const count of [0,4,1.5])assert.throws(()=>planRecipes(inventory(['Huevo']),{today,count}));assert.throws(()=>planRecipes(inventory(['Huevo']),{today,previousNames:[null]}));});
+
+test('prioriza el lote más próximo y produce ideas con subconjuntos sin ensaladas reordenadas',()=>{
+ const items=inventory(['Jitomate','Espinaca','Aguacate','Huevo','Tortilla','Pepino','Frijol','Jitomate']);
+ items[0].date=today;
+ items[7].date='2026-11-10';
+ const suggestions=[];
+ for(let attempt=0;attempt<5;attempt++){
+  suggestions.push(...planRecipes(items,{today,count:3,previousNames:suggestions.map(r=>r.name)}).recipes);
+ }
+ assert(suggestions[0].ingredients.some(i=>i.inventoryId===1));
+ assert(!suggestions.some(r=>r.ingredients.some(i=>i.inventoryId===8)));
+ assert.equal(suggestions.filter(r=>r.name.startsWith('Ensalada')&&!r.name.includes('frijol')).length,1);
+ assert(suggestions.some(r=>r.name==='Tacos de frijol'&&r.ingredients.length===2));
+ assert(suggestions.some(r=>r.name.startsWith('Sopa')));
+ assert(suggestions.every(r=>r.ingredients.length<items.length));
+});
+
+test('distingue una fecha registrada de un recordatorio y de un alimento sin fecha',()=>{
+ const items=inventory(['Huevo','Pera','Leche','Chocolate']);
+ items[1].date='2026-11-07';
+ items[1].dateKind='estimated';
+ items[2].date='2026-11-12';
+ const {recipes}=planRecipes(items,{today,count:3});
+ assert.equal(recipes[0].name,'Chocolate caliente');
+ assert(recipes[1].ingredients.some(i=>i.inventoryId===2));
+ assert(recipes.every(recipe=>recipe.ingredients.length<items.length));
+});
