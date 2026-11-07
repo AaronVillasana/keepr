@@ -76,3 +76,23 @@ test('el recetario es bilingüe y utiliza los 82 alimentos del detector',()=>{
  assert.match(ui.element('#modal-body').innerHTML,/Preparation/);
  assert.match(ui.element('#modal-body').innerHTML,/Missing:.*Avocado/);
 });
+
+test('las fotos se preparan antes de navegar y se reutilizan al volver a una pantalla',()=>{
+ const ui=app();
+ ui.run(`
+  window.Image=class {
+   setAttribute(){}
+   decode(){this.decoded=true;return Promise.resolve();}
+  };
+  warmHeaderPhotos();
+  const marketPhoto=headerImages.get(headerImageKey('market.jpg',false));
+  const mounted=[];
+  document.querySelectorAll=selector=>selector==='#content [data-header-photo]'?[{
+   dataset:{headerPhoto:'market.jpg'},classList:{contains:()=>false},replaceWith:image=>mounted.push(image)
+  }]:[];
+  setScreenContent(headerPhoto('market.jpg',false));
+  setScreenContent(headerPhoto('market.jpg',false));
+ `);
+ assert.equal(ui.run("headerImages.size"),5);
+ assert.equal(ui.run("marketPhoto.decoded && marketPhoto.src==='/assets/market.jpg' && mounted.every(image=>image===marketPhoto) && mounted.length===2"),true);
+});

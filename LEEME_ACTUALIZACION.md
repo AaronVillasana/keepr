@@ -1,5 +1,7 @@
-# Actualizar Keepr a 0.24.0
+# Actualizar Keepr a 0.24.2
 
+La versión 0.24.2 añade un icono de inicio con el logotipo blanco keepr. sobre verde oliva oscuro. Si el teléfono conserva el icono anterior, vuelve a añadir el acceso desde el navegador.
+La versión 0.24.1 prepara las fotos de portada en segundo plano y las reutiliza al navegar entre Inicio, Inventario y Recetas.
 Este ZIP actualiza tu repositorio existente de Keepr. Incluye Keepr Cookbook con 45 recetas en español e inglés. En conjunto, las recetas usan los 82 alimentos que reconoce el escáner. Puedes explorarlas con el inventario vacío, ver los ingredientes que te faltan y filtrar los platos que puedes preparar con lo que tienes.
 
 Buscar ideas sigue usando tu inventario para sugerir hasta tres platos por búsqueda. El idioma elegido se aplica a las sugerencias nuevas, sus ingredientes y sus pasos. Si ya tenías sugerencias guardadas en español, puedes seguir viéndolas en ese idioma. Los nombres personalizados se conservan tal como se registraron.
