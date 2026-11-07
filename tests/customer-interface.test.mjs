@@ -14,8 +14,10 @@ test('portada con inventario muestra búsqueda y distingue el recordatorio de un
  const ui=app();
  ui.run("state.items=[{id:1,name:'Pollo',quantity:'Por confirmar',date:suggestedReview('Pollo'),dateKind:'estimated'}];renderHome()");
  assert.match(ui.element('#content').innerHTML,/Buscar ideas para cocinar/);
- assert.match(ui.element('#content').innerHTML,/Revisar pronto · estimado/);
- assert.equal(ui.run("suggestedReview('Arroz')"),null);
+ assert.match(ui.element('#content').innerHTML,/Revisar en 1 día aprox/);
+ assert.equal(ui.run("suggestedReview('Arroz')"),ui.run("dateIn(14)"));
+ assert.equal(ui.run("suggestedReview('Chicken')"),ui.run("dateIn(1)"));
+ assert.equal(ui.run("KeeprDetection.coverage.every(name=>suggestedReview(name))"),true);
  assert.equal(ui.run("suggestedReview('Producto desconocido')"),null);
 });
 

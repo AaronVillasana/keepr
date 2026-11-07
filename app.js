@@ -293,20 +293,24 @@ const orderedRecipes=()=>[...recipes].sort((a,b)=>{
 });
 function save(){queueRecipes();try{localStorage.setItem('keepr-v1',JSON.stringify(state));}catch{toast('No se pudo guardar. Los cambios durarán hasta cerrar la página.');}}
 function toast(msg){$('#toast').textContent=msg;$('#toast').classList.add('visible');clearTimeout(toast.timer);toast.timer=setTimeout(()=>$('#toast').classList.remove('visible'),3500);}
-// These intervals schedule a check-in, not a shelf-life estimate.
-const reviewSoon=['Pollo','Pechuga de pollo','Pescado','Camarón','Carne molida','Carne','Carne de res','Carne de cerdo','Carne de cordero'];
-const reviewLater=['Espinaca','Lechuga','Hojas verdes','Fresa','Frambuesa','Champiñón','Aguacate','Cilantro','Perejil','Brócoli','Jitomate','Pepino'];
+// Check-in intervals from the day an item is added, not food safety deadlines.
+const reviewIntervals=[
+ [1,['Pollo','Pechuga de pollo','Pescado','Camarón','Carne molida','Carne','Anchoa','Salchicha']],
+ [2,['Carne de res','Carne de cerdo','Carne de cordero','Fresa','Frambuesa','Mora','Hojas verdes']],
+ [3,['Espinaca','Lechuga','Champiñón','Aguacate','Cilantro','Perejil','Brócoli','Jitomate','Pepino','Chirimoya','Guayaba','Papaya','Durazno','Leche','Jamón','Tofu','Elote','Espárrago','Okra']],
+ [7,['Betabel','Zanahoria','Col','Cebolla','Ajo','Papa','Camote','Jengibre','Manzana','Naranja','Limón','Limón amarillo','Mantequilla','Huevo','Queso','Yogur']],
+ [14,['Arroz','Frijol','Frijol blanco','Garbanzo','Harina','Chocolate','Pimienta larga']]
+];
 function suggestedReview(name){
- const food=resolveFood(name);
- if(!food||food.method==='approximate')return null;
- if(reviewSoon.includes(food.name))return dateIn(1);
- if(reviewLater.includes(food.name))return dateIn(3);
- return null;
+ const exact=resolveFood(name);
+ const food=exact&&exact.method!=='approximate'?exact.name:[...englishFoodNames].find(([,english])=>foodNormalize(english)===foodNormalize(name))?.[0];
+ if(!food)return null;
+ return dateIn(reviewIntervals.find(([,foods])=>foods.includes(food))?.[0]??5);
 }
 function badge(item){
  if(!item.date)return ['',''];
  const days=daysLeft(item.date);
- if(item.dateKind==='estimated')return days<=2?['soon',days<=0?'Revisar hoy · estimado':'Revisar pronto · estimado']:['',''];
+ if(item.dateKind==='estimated')return ['soon',days<=0?t('Revisar hoy · estimado','Check today · estimated'):days===1?t('Revisar en 1 día aprox.','Check in about 1 day'):t(`Revisar en ${days} días aprox.`,`Check in about ${days} days`)];
  if(days<0)return ['expired','Fecha superada'];
  if(days>4)return ['',''];
  return [days<=2?'urgent':'soon',days===0?'Fecha: hoy':`Fecha en ${days} día${days===1?'':'s'}`];
@@ -318,7 +322,7 @@ function card(item){
 function showFood(id){
  const item=state.items.find(i=>i.id===id);if(!item)return;
  const date=item.date?item.date.split('-').reverse().join('/'):'Sin fecha';
- const label=item.dateKind==='estimated'?'Revisión sugerida':'Fecha de etiqueta';
+ const label=item.dateKind==='estimated'?t('Fecha aproximada de revisión','Estimated check date'):t('Fecha de vencimiento','Expiration date');
  openModal('INVENTARIO',`<h2>${escapeHTML(item.name)}</h2><p>Cantidad: ${escapeHTML(item.quantity)}</p><p>${label}: ${escapeHTML(date)}</p>${item.dateKind==='estimated'?'<p class="subtle">Es un recordatorio para revisar el alimento. No indica caducidad.</p>':''}<div class="modal-actions"><button class="text-button" data-remove="${id}">Eliminar</button>${Kitchen.allowed(item,dateIn(0))?`<button class="secondary" data-consume="${id}">Marcar consumido</button>`:''}<button class="primary" data-edit="${id}">Editar alimento</button></div>`);
 }
 function render(){page=['inicio','inventario','recetas'].includes(location.hash.slice(1))?location.hash.slice(1):'inicio';document.querySelectorAll('nav a').forEach(a=>{a.classList.toggle('active',a.dataset.page===page);a.setAttribute('aria-current',a.dataset.page===page?'page':'false');});$('#nav-count').textContent=state.items.length;$('#nav-count').hidden=!state.items.length;$('#breadcrumb').textContent={inicio:t('Mi cocina','My kitchen'),inventario:t('Mi inventario','My inventory'),recetas:t('Qué cocinar','What to cook')}[page];
@@ -352,7 +356,7 @@ function renderItems(){const items=state.items.filter(i=>foodSearch(i.name,query
 function openModal(title,body){$('#modal-kicker').textContent=title;$('#modal-body').innerHTML=body;if(!$('#modal').open)$('#modal').showModal();}
 function closeModal(){$('#modal').close();if(previewURL){URL.revokeObjectURL(previewURL);previewURL=null;}}
 function addOptions(){openModal(t("AGREGAR A MI COCINA","ADD TO MY KITCHEN"),`<h2>${t("¿Qué hay en tu refri?","What’s in your fridge?")}</h2><p>${t("Elige cómo quieres agregar tus alimentos.","Choose how to add your food.")}</p><div class="modal-actions"><button class="secondary" id="manual">${t("Agregar manualmente","Add manually")}</button><button class="primary" id="photo">${t("Analizar fotos","Analyze photos")}</button></div>`);$('#manual').onclick=()=>editItem();$('#photo').onclick=photoFlow;}
-function editItem(id){const item=state.items.find(i=>i.id===id);openModal(item?t("EDITAR ALIMENTO","EDIT FOOD"):t("REGISTRO MANUAL","MANUAL ENTRY"),`<h2>${item?t("Actualiza tu alimento","Update your food item"):t("Agregar alimento","Add food")}</h2><form id="food-form"><label>${t("Nombre","Name")}<input id="food-name" required maxlength="100" value="${escapeHTML(item?.name||'')}" placeholder="${t("Ej. Jitomate","e.g. Tomato")}" list="food-suggestions"></label><datalist id="food-suggestions">${FOOD_CATALOG.map(f=>`<option value="${escapeHTML(foodLabel(f.name))}"></option>`).join('')}</datalist><div id="food-recognition" class="recognition" aria-live="polite"></div><details class="manual-details" ${item?'open':''}><summary>${t("Cantidad y fecha de etiqueta (opcional)","Quantity and label date (optional)")}</summary><div class="form-row"><label>${t("Cantidad (opcional)","Quantity (optional)")}<input id="food-quantity" maxlength="100" value="${escapeHTML(item?.quantity==='Por confirmar'?'':item?.quantity||'')}" placeholder="${t("Ej. 3 piezas","e.g. 3 pieces")}"></label><label>${t("Fecha de etiqueta (opcional)","Label date (optional)")}<input id="food-date" type="date" value="${item?.dateKind==='estimated'?'':item?.date||''}"></label></div><p class="subtle">${t("Si el empaque trae una fecha, puedes registrarla aquí.","If there’s a date on the package, enter it here.")}</p></details><div class="modal-actions"><button class="secondary" type="button" id="cancel-form">${t("Cancelar","Cancel")}</button><button class="primary" type="submit">${t("Guardar alimento","Save food")}</button></div></form>`);$('#food-name').oninput=updateRecognition;updateRecognition();$('#cancel-form').onclick=closeModal;$('#food-form').onsubmit=e=>{e.preventDefault();const name=$('#food-name').value.trim(),quantity=$('#food-quantity').value.trim()||'Por confirmar',labelDate=$('#food-date').value; if(!name){toast(t("Escribe el nombre del alimento.","Enter the food name."));return;}const review=labelDate?null:item?.dateKind==='estimated'&&item.name===name?item.date:!item||item.name!==name?suggestedReview(name):null;const date=labelDate||review||null;const data={id:item?.id||newId(),name,quantity,date,dateKind:review?'estimated':labelDate?(item?.date===labelDate&&item.dateKind!=='estimated'?item.dateKind:'reference'):'unknown',dateEstimateNote:item&&date===item.date?item.dateEstimateNote:null,quantitySource:item&&quantity===item.quantity?item.quantitySource:'manual',emoji:resolveFood(name)?.emoji||(item?.name===name&&validFoodEmoji(item?.emoji)?item.emoji:'🍽️')};if(item)state.items=state.items.map(i=>i.id===id?data:i);else state.items.push(data);save();closeModal();render();toast('Alimento guardado.');};}
+function editItem(id){const item=state.items.find(i=>i.id===id);openModal(item?t("EDITAR ALIMENTO","EDIT FOOD"):t("REGISTRO MANUAL","MANUAL ENTRY"),`<h2>${item?t("Actualiza tu alimento","Update your food item"):t("Agregar alimento","Add food")}</h2><form id="food-form"><label>${t("Nombre","Name")}<input id="food-name" required maxlength="100" value="${escapeHTML(item?.name||'')}" placeholder="${t("Ej. Jitomate","e.g. Tomato")}" list="food-suggestions"></label><datalist id="food-suggestions">${FOOD_CATALOG.map(f=>`<option value="${escapeHTML(foodLabel(f.name))}"></option>`).join('')}</datalist><div id="food-recognition" class="recognition" aria-live="polite"></div><details class="manual-details" ${item?'open':''}><summary>${t("Cantidad y fecha de vencimiento (opcional)","Quantity and expiration date (optional)")}</summary><div class="form-row"><label>${t("Cantidad (opcional)","Quantity (optional)")}<input id="food-quantity" maxlength="100" value="${escapeHTML(item?.quantity==='Por confirmar'?'':item?.quantity||'')}" placeholder="${t("Ej. 3 piezas","e.g. 3 pieces")}"></label><label>${t("Fecha de vencimiento (opcional)","Expiration date (optional)")}<input id="food-date" type="date" value="${item?.dateKind==='estimated'?'':item?.date||''}"></label></div><p class="subtle">${t("Si dejas la fecha vacía, Keepr sugiere cuándo revisar los alimentos que reconoce.","If you leave the date blank, Keepr suggests when to check recognized foods.")}</p></details><div class="modal-actions"><button class="secondary" type="button" id="cancel-form">${t("Cancelar","Cancel")}</button><button class="primary" type="submit">${t("Guardar alimento","Save food")}</button></div></form>`);$('#food-name').oninput=updateRecognition;updateRecognition();$('#cancel-form').onclick=closeModal;$('#food-form').onsubmit=e=>{e.preventDefault();const name=$('#food-name').value.trim(),quantity=$('#food-quantity').value.trim()||'Por confirmar',labelDate=$('#food-date').value; if(!name){toast(t("Escribe el nombre del alimento.","Enter the food name."));return;}const review=labelDate?null:item?.dateKind==='estimated'&&item.name===name?item.date:!item||item.name!==name?suggestedReview(name):null;const date=labelDate||review||null;const data={id:item?.id||newId(),name,quantity,date,dateKind:review?'estimated':labelDate?(item?.date===labelDate&&item.dateKind!=='estimated'?item.dateKind:'reference'):'unknown',dateEstimateNote:item&&date===item.date?item.dateEstimateNote:null,quantitySource:item&&quantity===item.quantity?item.quantitySource:'manual',emoji:resolveFood(name)?.emoji||(item?.name===name&&validFoodEmoji(item?.emoji)?item.emoji:'🍽️')};if(item)state.items=state.items.map(i=>i.id===id?data:i);else state.items.push(data);save();closeModal();render();toast('Alimento guardado.');};}
 function updateRecognition(){const name=$('#food-name').value.trim(),food=resolveFood(name);$('#food-recognition').innerHTML=name?`<span class="recognition-emoji">${foodIcon(name)}</span><div>${food?`${t("Asociado a ","Matched to ")}<strong>${escapeHTML(foodLabel(food.name))}</strong>${food.method==='approximate'?t(" · coincidencia aproximada"," · approximate match"):''}`:t("Alimento personalizado","Custom item")}<small>${food?t("Conservaremos el nombre que escribiste.","We’ll keep the name you entered."):t("Puedes guardarlo con este nombre.","You can save it under this name.")}</small></div>`:t("Escribe un alimento para ver su icono.","Enter a food name to see its icon.");}
 let photoSession=0,analysisController=null;
 async function prepareImage(file){
@@ -385,7 +389,7 @@ function reviewDetected(result){
   const row=document.createElement('section');row.className='quick-review-row';
   const index=rows.length;
   const displayedName=foodLabel(item.name);
-  row.innerHTML=`<label class="quick-check"><input type="checkbox" class="detected-include" checked aria-label="${t("Incluir ","Include ")}${escapeHTML(displayedName||t("alimento nuevo","new item"))}"></label><details ${item.name?'':'open'}><summary><span class="quick-name">${escapeHTML(displayedName||t("Alimento nuevo","New item"))}</span></summary><div class="quick-fields"><label>${t("Nombre","Name")}<input class="detected-name" maxlength="100" value="${escapeHTML(displayedName)}"></label><div class="form-row"><label>${t("Cantidad (opcional)","Quantity (optional)")}<input class="detected-quantity" maxlength="100" value="${escapeHTML(item.quantity||'')}"></label><label>${t("Fecha de etiqueta (opcional)","Label date (optional)")}<input type="date" class="detected-date" value="${escapeHTML(item.dateKind==='estimated'?'':item.date||'')}"></label></div></div></details>`;
+  row.innerHTML=`<label class="quick-check"><input type="checkbox" class="detected-include" checked aria-label="${t("Incluir ","Include ")}${escapeHTML(displayedName||t("alimento nuevo","new item"))}"></label><details ${item.name?'':'open'}><summary><span class="quick-name">${escapeHTML(displayedName||t("Alimento nuevo","New item"))}</span></summary><div class="quick-fields"><label>${t("Nombre","Name")}<input class="detected-name" maxlength="100" value="${escapeHTML(displayedName)}"></label><div class="form-row"><label>${t("Cantidad (opcional)","Quantity (optional)")}<input class="detected-quantity" maxlength="100" value="${escapeHTML(item.quantity||'')}"></label><label>${t("Fecha de vencimiento (opcional)","Expiration date (optional)")}<input type="date" class="detected-date" value="${escapeHTML(item.dateKind==='estimated'?'':item.date||'')}"></label></div></div></details>`;
   row.dataset.index=index;
   const name=row.querySelector('.detected-name');
   name.oninput=()=>{const title=name.value.trim()||t("Alimento nuevo","New item");row.querySelector('.quick-name').textContent=title;row.querySelector('.detected-include').setAttribute('aria-label',t("Incluir ","Include ")+title);};
@@ -437,6 +441,13 @@ $('#language-toggle').onclick=()=>{
  render();
 };
 updateLanguage();
-window.addEventListener('hashchange',()=>{render();window.scrollTo(0,0);});
+window.addEventListener('hashchange',()=>{
+ const previous=page;
+ render();
+ window.scrollTo(0,0);
+ if(page!==previous&&window.matchMedia?.('(prefers-reduced-motion: no-preference)').matches){
+  $('#content').animate?.([{opacity:.78,transform:'translateY(4px)'},{opacity:1,transform:'translateY(0)'}],{duration:180,easing:'ease-out'});
+ }
+});
 window.addEventListener('storage',e=>{if(e.key==='keepr-v1')location.reload();});
 render();
