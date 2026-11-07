@@ -422,3 +422,24 @@ header{height:76px}#content{padding-top:32px}.primary,.secondary,.hero-button{bo
  button:not(:disabled),.sidebar nav a{transition:background-color .18s ease,border-color .18s ease,color .18s ease,transform .16s ease,opacity .16s ease}
  button:active:not(:disabled),.sidebar nav a:active{transform:scale(.975);opacity:.84}
 }
+
+/* Shared primary actions and compact inventory details. */
+:root{--action-ink:#23231f}
+.primary,.hero-button,.recipe-create-action .primary{
+ background:var(--action-ink);border-color:var(--action-ink);color:#fffaf0;border-radius:30px
+}
+.primary:hover:not(:disabled),.hero-button:hover:not(:disabled){
+ background:#37352f;border-color:#37352f
+}
+.food-card.compact-food{display:grid;grid-template-columns:35px minmax(0,1fr);gap:12px;padding:16px}
+.food-card.compact-food .emoji{margin:0;width:35px;height:35px}
+.food-card-copy{min-width:0}
+.food-card-copy>p{margin-top:4px;color:var(--muted)}
+.food-card-meta{display:flex;align-items:center;flex-wrap:wrap;column-gap:12px;row-gap:0;margin-top:2px}
+.food-card-meta .food-details{padding:0;min-height:44px;text-align:left}
+.food-card-meta .badge{max-width:100%;overflow-wrap:anywhere}
+.daily-panel.home-priority{padding:16px 18px 10px;background:#e8ebdf;border:1px solid #dce0d2;border-radius:18px}
+.home-priority-heading{display:flex;gap:12px;align-items:flex-start}
+.home-priority-heading h2{margin:0;font-size:25px}
+.home-priority-heading p{margin-top:4px;color:#57554d}
+.home-priority>a.text-button{display:inline-flex;align-items:center;width:fit-content;min-height:44px;padding:0;margin:0;color:var(--action-ink)}

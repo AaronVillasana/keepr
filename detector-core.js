@@ -20,9 +20,19 @@
  function summarize(photoDetections){
   const groups=new Map();
   photoDetections.forEach((boxes,photo)=>{
-   for(const b of boxes){if(!Number.isInteger(b.cls)||!names[b.cls])continue;const name=names[b.cls],old=groups.get(name);if(!old||b.score>old.score)groups.set(name,{score:b.score,photo});}
+   const counts=new Map();
+   for(const box of boxes){
+    if(!Number.isInteger(box.cls)||!names[box.cls])continue;
+    const name=names[box.cls];
+    const group=groups.get(name)||{score:0,photo,count:0};
+    if(box.score>group.score){group.score=box.score;group.photo=photo;}
+    const count=(counts.get(name)||0)+1;
+    counts.set(name,count);
+    group.count=Math.max(group.count,count);
+    groups.set(name,group);
+   }
   });
-  return {items:[...groups].sort((a,b)=>a[0].localeCompare(b[0],'es')).map(([name,g])=>({name,quantity:null,quantitySource:'unknown',date:null,dateText:null,dateKind:'unknown',certainty:'uncertain',evidence:`Sugerencia visual en foto ${g.photo+1} · puntuación del detector ${Math.round(g.score*100)}%. Confirma la identidad y la cantidad.`,detectorScore:g.score})),notes:['Detector de ingredientes de refrigerador con 91 etiquetas de entrenamiento, agrupadas en 82 nombres. Puede omitir o confundir alimentos.','No identifica el contenido de envases opacos. Cantidades, fechas y estado del alimento quedan pendientes de tu revisión.',...(photoDetections.length>1?['Las sugerencias repetidas entre fotos se agrupan; no se suman cantidades para evitar contar el mismo alimento dos veces.']:[])]};
+  return {items:[...groups].sort((a,b)=>a[0].localeCompare(b[0],'es')).map(([name,g])=>({name,quantity:g.count===1?'1 unidad':g.count+' unidades',quantitySource:'detected',date:null,dateText:null,dateKind:'unknown',certainty:'uncertain',evidence:`Sugerencia visual en foto ${g.photo+1} · puntuación del detector ${Math.round(g.score*100)}%. Confirma la identidad y la cantidad.`,detectorScore:g.score})),notes:['El recuento es aproximado. Revisa las unidades visibles y confirma la cantidad.',...(photoDetections.length>1?['Se toma el mayor recuento visible de cada alimento en una sola foto; no se suman cantidades entre fotos.']:[])]};
  }
  root.KeeprDetection={names,coverage,decode,summarize,iou};
  if(typeof module!=='undefined')module.exports=root.KeeprDetection;

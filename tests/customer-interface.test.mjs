@@ -50,3 +50,13 @@ test('el escáner y el formulario muestran sus instrucciones en inglés',async()
  ui.run('editItem()');
  assert.match(ui.element('#modal-body').innerHTML,/placeholder="e.g. Tomato"/);
 });
+
+test('volver a escanear pimientos actualiza el registro sin duplicar ni sumar el recuento',()=>{
+ const ui=app();
+ assert.equal(ui.run(`const scanned=[{id:1,name:'Pimiento',quantity:'2 unidades',quantitySource:'detected'}];
+ const fresh={id:2,name:'pimiento',quantity:'3 unidades',quantitySource:'detected'};
+ mergeScannedFood(scanned,fresh);mergeScannedFood(scanned,fresh);
+ scanned.length===1 && scanned[0].id===1 && scanned[0].quantity==='3 unidades'`),true);
+ assert.equal(ui.run(`scanned[0].quantity='500 g';scanned[0].quantitySource='manual';
+ mergeScannedFood(scanned,fresh);scanned[0].quantity`),'500 g');
+});

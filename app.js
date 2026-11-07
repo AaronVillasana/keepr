@@ -274,7 +274,7 @@ function renderRecipes(){
  ${recipeError?`<div class="recipe-feedback error" role="alert"><strong>No pudimos crear la receta.</strong><p>${escapeHTML(recipeError)}</p><button class="text-button" id="retry-recipe">Volver a intentar →</button></div>`:''}
  ${recipeNotes?`<p class="notice" role="status">${escapeHTML(recipeNotes)}</p>`:''}
  ${created.length?`<div class="recipe-list-heading"><h2>${t("Sugerencias para tu inventario","Suggestions for your inventory")}</h2><span>${created.length} ${created.length===1?'receta':'recetas'}</span></div><div class="recipe-list">${created.map(recipeRow).join('')}</div>`:''}
- <div class="recipe-list-heading"><h2>${created.length?'También puedes preparar':'Ideas con lo que tienes'}</h2><span>Recetario Keepr</span></div><div class="recipe-list">${ideas.length?ideas.map(recipeRow).join(''):`<div class="empty"><h3>Todavía no hay una combinación en el recetario</h3><p>Pulsa Buscar ideas para encontrar una preparación con tus ingredientes.</p></div>`}</div><p class="recipe-footnote">Las sugerencias se guardan en este navegador para el inventario de hoy. Revisa las cantidades y el estado de tus alimentos antes de cocinar.</p>`;
+ <div class="recipe-list-heading"><h2>${t("Recetas de Keepr","Keepr cookbook")}</h2></div><p class="subtle">${t("Estas recetas guardadas aparecen automáticamente cuando tienes todos sus ingredientes.","These cookbook recipes appear automatically when you have all their ingredients.")}</p><div class="recipe-list">${ideas.length?ideas.map(recipeRow).join(''):`<div class="empty"><h3>${t("Todavía no hay coincidencias","No matches yet")}</h3><p>${t("Puedes usar Buscar ideas para generar opciones con lo que tienes.","Use Find ideas to generate options with what you have.")}</p></div>`}</div><p class="recipe-footnote">Las sugerencias se guardan en este navegador para el inventario de hoy. Revisa las cantidades y el estado de tus alimentos antes de cocinar.</p>`;
  $('#refresh-recipes').onclick=()=>refreshRecipes(true);if($('#retry-recipe'))$('#retry-recipe').onclick=()=>refreshRecipes(true);
 }
 const normalized=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
@@ -317,7 +317,7 @@ function badge(item){
 }
 function card(item){
  const [style,label]=badge(item);
- return `<article class="food-card compact-food"><div class="emoji" aria-hidden="true">${foodIcon(item.name,item.emoji)}</div>${label?`<span class="badge ${style}">${label}</span>`:''}<h3>${escapeHTML(item.name)}</h3>${item.quantity!=='Por confirmar'?`<p>${escapeHTML(item.quantity)}</p>`:''}<button class="text-button food-details" data-detail="${item.id}" aria-label="Ver detalles de ${escapeHTML(item.name)}">Ver detalles →</button></article>`;
+ return `<article class="food-card compact-food"><div class="emoji" aria-hidden="true">${foodIcon(item.name,item.emoji)}</div><div class="food-card-copy"><h3>${escapeHTML(item.name)}</h3>${item.quantity!=='Por confirmar'?`<p>${escapeHTML(item.quantity)}</p>`:''}<div class="food-card-meta">${label?`<span class="badge ${style}">${label}</span>`:''}<button class="text-button food-details" data-detail="${item.id}" aria-label="Ver detalles de ${escapeHTML(item.name)}">Ver detalles →</button></div></div></article>`;
 }
 function showFood(id){
  const item=state.items.find(i=>i.id===id);if(!item)return;
@@ -348,7 +348,7 @@ function renderHome(){
  const hasItems=state.items.length>0;
  const upcoming=eligible().filter(i=>i.date&&daysLeft(i.date)<=2).sort(compareFoodDates).slice(0,3);
  $('#content').innerHTML=`<div class="dashboard-top home-simple"><section class="hero"><div class="hero-copy"><h1>${t("¿Qué cocinamos ","What are we cooking ")}<em>${t("hoy?","today?")}</em></h1><p>${t("Encuentra ideas para cocinar con lo que ya tienes en casa.","Find ideas for cooking with what you already have at home.")}</p><div class="home-actions">${hasItems?`<button class="hero-button" data-find-ideas>${t("Buscar ideas para cocinar","Find cooking ideas")}</button><button class="text-button" data-scan>${t("Escanear más","Scan more")}</button>`:`<button class="hero-button" data-scan><svg class="action-symbol" aria-hidden="true" viewBox="0 0 24 24"><path d="M4 9V6a2 2 0 0 1 2-2h3m6 0h3a2 2 0 0 1 2 2v3m0 6v3a2 2 0 0 1-2 2h-3m-6 0H6a2 2 0 0 1-2-2v-3m0-3h16"/></svg> ${t("Escanear alimentos","Scan food")}</button><button class="text-button" data-manual><svg class="action-symbol" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg> ${t("Agregar a mano","Add manually")}</button>`}</div></div><div class="hero-art">${headerPhoto('keepr-portada.webp',true)}</div></section></div>
- ${upcoming.length?`<section class="daily-panel home-priority"><h2>${t("Para usar primero","Use first")}</h2><div class="priority-list">${upcoming.map(i=>`<button class="priority-item" data-detail="${i.id}"><span class="priority-emoji">${foodIcon(i.name,i.emoji)}</span><strong>${escapeHTML(i.name)}</strong><span class="priority-date">${badge(i)[1]}</span></button>`).join('')}</div></section>`:''}`;
+ <section class="daily-panel home-priority"><div class="home-priority-heading">${foodIcon("Manzana")}<div><h2>${t("Aprovecha primero","Use first")}</h2>${upcoming.length?'':`<p>${t("Aquí verás qué alimentos conviene revisar pronto.","See which foods are worth checking soon.")}</p>`}</div></div>${upcoming.length?`<div class="priority-list">${upcoming.map(i=>`<button class="priority-item" data-detail="${i.id}"><span class="priority-emoji">${foodIcon(i.name,i.emoji)}</span><strong>${escapeHTML(i.name)}</strong><span class="priority-date">${badge(i)[1]}</span></button>`).join('')}</div>`:''}<a class="text-button" href="#inventario">${t("Ver inventario","View inventory")} →</a></section>`;
 }
 function renderInventory(){
  if(!state.items.length){
@@ -385,9 +385,31 @@ async function photoFlow(){
  button.onclick=async()=>{if(!ready||!images.length||preparing||analyzing)return;analyzing=true;controls();button.textContent=t("Analizando…","Analyzing…");status.textContent=t("Preparando análisis…","Preparing to scan…");status.hidden=false;analysisController=new AbortController();const controller=analysisController;const timeout=setTimeout(()=>controller.abort(),300000);try{const data=await window.KeeprDetector.analyze(images,{signal:controller.signal,onProgress:message=>{if(session===photoSession)status.textContent=scanProgressLabel(message);}});if(!Array.isArray(data.items)||!Array.isArray(data.notes))throw new Error(t("El detector devolvió una respuesta inválida.","The scanner returned an invalid response."));if(session!==photoSession)return;reviewDetected(data);}catch(e){if(session===photoSession){status.textContent=e.name==='AbortError'?t("El análisis se canceló o tardó demasiado. Prueba con una sola foto más cercana.","Scanning was canceled or timed out. Try one closer photo."):t(e.message,'Couldn’t scan the photo. Try again or add the food manually.');button.textContent=t("Reintentar análisis →","Retry scan →");}}finally{clearTimeout(timeout);if(analysisController===controller)analysisController=null;if(session===photoSession){analyzing=false;controls();}}};
  ready=Boolean(window.KeeprDetector?.supported());status.textContent=ready?'':t("No podemos analizar fotos en este navegador. Prueba con Safari o Chrome actualizado, o agrega tus alimentos manualmente.","Photo scanning is unavailable in this browser. Try an updated version of Safari or Chrome, or add food manually.");status.hidden=ready;controls();
 }
+function scanFoodKey(name){
+ const resolved=resolveFood(name);
+ if(resolved?.method==='exact')return foodNormalize(resolved.name);
+ const key=foodNormalize(name);
+ return foodNormalize([...englishFoodNames].find(([,english])=>foodNormalize(english)===key)?.[0]||name);
+}
+function mergeScannedFood(items,incoming){
+ const key=scanFoodKey(incoming.name);
+ const index=items.findIndex(item=>scanFoodKey(item.name)===key);
+ if(index<0){items.push(incoming);return incoming.id;}
+ const existing=items[index];
+ const useQuantity=incoming.quantitySource==='manual'||(incoming.quantitySource==='detected'&&(
+  existing.quantity==='Por confirmar'||(existing.quantitySource==='detected'&&parseInt(incoming.quantity,10)>parseInt(existing.quantity,10))
+ ));
+ const useDate=incoming.date&&incoming.dateKind!=='estimated'&&
+  (!existing.date||existing.dateKind==='estimated'||incoming.date<existing.date);
+ items[index]={...existing,
+  ...(useQuantity?{quantity:incoming.quantity,quantitySource:incoming.quantitySource}:{}),
+  ...(useDate?{date:incoming.date,dateKind:incoming.dateKind,dateEstimateNote:null}:{})
+ };
+ return existing.id;
+}
 function reviewDetected(result){
  const count=result.items.length;
- openModal(t("REVISAR RESULTADOS","REVIEW RESULTS"),`<h2>${count?t("Confirma tus alimentos","Confirm your food"):t("No se identificaron alimentos","No food detected")}</h2><p>${count?t("Desmarca lo que no quieras guardar. Toca un alimento para corregirlo.","Uncheck anything you don’t want to save. Tap an item to edit it."):t("Prueba con una foto más cercana o agrega un alimento a mano.","Try a closer photo or add an item manually.")}</p><form id="review-form"><div id="detected-list" class="quick-review"></div><button type="button" class="text-button" id="add-detected">${t("+ Agregar alimento faltante","+ Add missing item")}</button><p id="review-error" role="alert"></p><div class="modal-actions"><button type="button" class="secondary" id="other-photos">${t("Otra foto","Choose another photo")}</button><button class="primary" type="submit">${t("Guardar alimentos","Save food")}</button></div></form>`);
+ openModal(t("REVISAR RESULTADOS","REVIEW RESULTS"),`<h2>${count?t("Confirma tus alimentos","Confirm your food"):t("No se identificaron alimentos","No food detected")}</h2><p>${count?t("Desmarca lo que no quieras guardar. Abre un alimento para confirmar su cantidad total. El recuento de la foto es aproximado.","Uncheck anything you don’t want to save. Open an item to confirm its total quantity. The photo count is approximate."):t("Prueba con una foto más cercana o agrega un alimento a mano.","Try a closer photo or add an item manually.")}</p><form id="review-form"><div id="detected-list" class="quick-review"></div><button type="button" class="text-button" id="add-detected">${t("+ Agregar alimento faltante","+ Add missing item")}</button><p id="review-error" role="alert"></p><div class="modal-actions"><button type="button" class="secondary" id="other-photos">${t("Otra foto","Choose another photo")}</button><button class="primary" type="submit">${t("Guardar alimentos","Save food")}</button></div></form>`);
  const rows=[];
  function addRow(item){
   const row=document.createElement('section');row.className='quick-review-row';
@@ -408,7 +430,8 @@ function reviewDetected(result){
   e.preventDefault();
   const selected=rows.filter(({row})=>row.querySelector('.detected-include').checked);
   if(!selected.length){$('#review-error').textContent=t("Selecciona al menos un alimento.","Select at least one item.");return;}
-  const newItems=[];
+  const draft=[...state.items];
+  const savedIds=new Set();
   const usedIds=new Set(state.items.map(i=>i.id));
   let id=newId();
   for(const {row,item,displayedName} of selected){
@@ -419,11 +442,12 @@ function reviewDetected(result){
    if(!name){$('#review-error').textContent=t("Escribe el nombre del alimento seleccionado.","Enter a name for the selected item.");row.querySelector('details').open=true;row.querySelector('.detected-name').focus();return;}
    const review=labelDate?null:suggestedReview(name);
    while(usedIds.has(id))id++;
-   newItems.push({id:id++,name,quantity:quantity||'Por confirmar',date:labelDate||review,dateKind:labelDate?(labelDate===item.date&&item.dateKind!=='estimated'?item.dateKind:'reference'):review?'estimated':'unknown',quantitySource:quantity&&quantity===item.quantity?item.quantitySource:quantity?'manual':'unknown',emoji:resolveFood(name)?.emoji||'🍽️'});
+   const savedId=mergeScannedFood(draft,{id:id++,name,quantity:quantity||'Por confirmar',date:labelDate||review,dateKind:labelDate?(labelDate===item.date&&item.dateKind!=='estimated'?item.dateKind:'reference'):review?'estimated':'unknown',quantitySource:quantity&&quantity===item.quantity?item.quantitySource:quantity?'manual':'unknown',emoji:resolveFood(name)?.emoji||'🍽️'});
+   savedIds.add(savedId);
   }
-  state.items.push(...newItems);save();
+  state.items=draft;save();
   filter='all';query='';location.hash='inventario';render();
-  openModal(t("LISTO","DONE"),`<h2>${newItems.length===1?t("Alimento guardado","Food saved"):newItems.length+t(" alimentos guardados"," items saved")}</h2><p>${t("Ya puedes buscar preparaciones con lo que tienes.","You can now find recipes using what you have.")}</p><div class="modal-actions"><button class="secondary" id="finish-review">${t("Ver inventario","View inventory")}</button><button class="primary" data-find-ideas>${t("Buscar ideas","Find ideas")}</button></div>`);
+  openModal(t("LISTO","DONE"),`<h2>${savedIds.size===1?t("Alimento guardado","Food saved"):savedIds.size+t(" alimentos guardados"," items saved")}</h2><p>${t("Ya puedes buscar preparaciones con lo que tienes.","You can now find recipes using what you have.")}</p><div class="modal-actions"><button class="secondary" id="finish-review">${t("Ver inventario","View inventory")}</button><button class="primary" data-find-ideas>${t("Buscar ideas","Find ideas")}</button></div>`);
   $('#finish-review').onclick=closeModal;
  };
 }
