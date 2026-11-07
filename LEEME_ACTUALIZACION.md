@@ -1,6 +1,6 @@
-# Actualizar Keepr a 0.22
+# Actualizar Keepr a 0.22.2
 
-Este ZIP actualiza el repositorio existente de Keepr. Incluye los cambios de 0.21 y el nuevo diseño móvil.
+Este ZIP actualiza el repositorio existente de Keepr. Incluye los cambios de 0.21 y el nuevo diseño móvil. La 0.22.1 corrige la carga de la foto de Inicio y quita el desenfoque detrás del logo.
 
 1. Descomprime el ZIP.
 2. En la raíz de tu repositorio de GitHub, abre **Add file → Upload files**.

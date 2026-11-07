@@ -1,6 +1,6 @@
 {
   "name": "keepr-mvp",
-  "version": "0.22.0",
+  "version": "0.22.2",
   "private": true,
   "description": "Keepr: inventario con reconocimiento fotográfico",
   "scripts": {
