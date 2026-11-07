@@ -7,7 +7,7 @@ test('los 82 nombres del detector tienen iconos vectoriales propios, sin recurri
 test('las pantallas de entrada, fotos y recetas presentan texto para clientes',async()=>{
  const ui=app();assert.equal(ui.run('state.items.length'),0);assert.match(ui.element('#content').innerHTML,/Escanear alimentos/);assert.doesNotMatch(ui.element('#content').innerHTML,/Resumen del inventario|Para usar primero/);ui.run('addOptions()');assert.doesNotMatch(ui.element('#modal-body').innerHTML,/Gemini|API|servicio de IA/);
  await ui.run('photoFlow()');assert.doesNotMatch(ui.element('#modal-body').innerHTML,/Gemini|API|91 etiquetas|detector local/);assert.equal(ui.element('#vision-status').hidden,true);
- await ui.run("page='recetas';refreshRecipes()");assert.doesNotMatch(ui.element('#content').innerHTML,/Gemini|OpenRouter|API|recipe-provider|recipe-row/);assert.match(ui.element('#content').innerHTML,/Aún no hay recetas/);
+ await ui.run("page='recetas';refreshRecipes()");assert.doesNotMatch(ui.element('#content').innerHTML,/Gemini|OpenRouter|API|recipe-provider/);assert.match(ui.element('#content').innerHTML,/Keepr Cookbook/);
 });
 
 test('portada con inventario muestra búsqueda y distingue el recordatorio de una fecha registrada',()=>{
@@ -29,10 +29,10 @@ test('el selector EN alterna Inicio, Inventario y Recetas sin cambiar los alimen
  ui.run("location.hash='#inventario';render()");
  assert.match(ui.element('#content').innerHTML,/Your inventory is empty/);
  ui.run("location.hash='#recetas';render()");
- assert.match(ui.element('#content').innerHTML,/No recipes yet/);
+ assert.match(ui.element('#content').innerHTML,/All recipes/);
  assert.equal(ui.run('state.items.length'),0);
  ui.element('#language-toggle').onclick();
- assert.match(ui.element('#content').innerHTML,/Aún no hay recetas/);
+ assert.match(ui.element('#content').innerHTML,/Keepr Cookbook/);
 });
 
 test('el escáner y el formulario muestran sus instrucciones en inglés',async()=>{
@@ -59,4 +59,20 @@ test('volver a escanear pimientos actualiza el registro sin duplicar ni sumar el
  scanned.length===1 && scanned[0].id===1 && scanned[0].quantity==='3 unidades'`),true);
  assert.equal(ui.run(`scanned[0].quantity='500 g';scanned[0].quantitySource='manual';
  mergeScannedFood(scanned,fresh);scanned[0].quantity`),'500 g');
+});
+
+test('el recetario es bilingüe y utiliza los 82 alimentos del detector',()=>{
+ const ui=app();
+ assert.equal(ui.run("Kitchen.cookbook('en').length"),45);
+ assert.equal(ui.run("KeeprDetection.coverage.every(food=>Kitchen.cookbook().some(recipe=>recipe.needs.includes(food)))"),true);
+ ui.element('#language-toggle').onclick();
+ ui.run("state.items=[{id:1,name:'Brócoli',quantity:'1 unidad',date:dateIn(3),dateKind:'estimated'}]; location.hash='#inventario'; render(); showFood(1)");
+ assert.match(ui.element('#inventory-grid').innerHTML,/Broccoli/);
+ assert.match(ui.element('#inventory-grid').innerHTML,/1 unit/);
+ assert.match(ui.element('#modal-body').innerHTML,/Reminder to check|reminder to check/);
+ assert.match(ui.element('#modal-body').innerHTML,/Mark as consumed/);
+ ui.run("showRecipe(3000)");
+ assert.match(ui.element('#modal-body').innerHTML,/Avocado and cucumber salad/);
+ assert.match(ui.element('#modal-body').innerHTML,/Preparation/);
+ assert.match(ui.element('#modal-body').innerHTML,/Missing:.*Avocado/);
 });

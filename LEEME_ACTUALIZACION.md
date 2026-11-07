@@ -1,27 +1,13 @@
-# Actualizar Keepr a 0.23.0
+# Actualizar Keepr a 0.24.0
 
-Este ZIP actualiza el repositorio existente de Keepr. Incluye los cambios de 0.21 y el nuevo diseño móvil. La 0.22.1 corrige la carga de la foto de Inicio y quita el desenfoque detrás del logo.
+Este ZIP actualiza tu repositorio existente de Keepr. Incluye Keepr Cookbook con 45 recetas en español e inglés. En conjunto, las recetas usan los 82 alimentos que reconoce el escáner. Puedes explorarlas con el inventario vacío, ver los ingredientes que te faltan y filtrar los platos que puedes preparar con lo que tienes.
+
+Buscar ideas sigue usando tu inventario para sugerir hasta tres platos por búsqueda. El idioma elegido se aplica a las sugerencias nuevas, sus ingredientes y sus pasos. Si ya tenías sugerencias guardadas en español, puedes seguir viéndolas en ese idioma. Los nombres personalizados se conservan tal como se registraron.
 
 1. Descomprime el ZIP.
-2. En la raíz de tu repositorio de GitHub, abre **Add file → Upload files**.
-3. Arrastra el contenido descomprimido. Conserva las carpetas `public`, `scripts`, `src` y `tests` y sus rutas.
+2. En la raíz del repositorio de Keepr, abre **Add file → Upload files**.
+3. Arrastra el contenido descomprimido, incluidas las carpetas. Conserva las rutas de `public`, `scripts`, `src`, `tests` y `worker`.
 4. Guarda con **Commit changes** en la rama que usa Render.
-5. Si tienes Auto-Deploy en On Commit, espera a que Render muestre **Live** y abre Keepr en el teléfono.
+5. Si Render tiene activado **Auto-Deploy → On Commit**, espera a que la nueva versión aparezca como **Live**.
 
-El repositorio existente aporta el servidor, la configuración de Render y las partes del modelo. Conserva esos archivos en su lugar. El inventario se guarda en el navegador y se puede comprobar el estado inicial abriendo una ventana privada.
-
-En 0.22.3, los botones de Inicio ocupan el ancho disponible en móvil. El selector EN/ES traduce los textos principales de la interfaz.
-
-La 0.22.4 amplía la traducción del escáner y del formulario y unifica el fondo de la navegación inferior con la página.
-
-La 0.22.5 iguala la altura de las tres fotos de encabezado en móvil.
-
-La 0.22.6 suaviza el desvanecido de las tres fotos. Para ver la foto detrás de la hora y la batería, abre Keepr en Safari, elige Compartir → Agregar a pantalla de inicio, activa Abrir como app web si aparece y abre Keepr desde el icono.
-
-La 0.22.7 mejora las transiciones móviles y sugiere fechas aproximadas de revisión según el alimento cuando se registra sin fecha. Los recordatorios se cuentan desde el registro.
-
-La 0.22.8 suaviza la transición al fondo crema y conserva nítidos los platos de Inicio y Recetas.
-
-La 0.22.9 añade la tarjeta Aprovecha primero, el icono de la K y botones principales negros.
-
-La 0.23.0 agrupa alimentos al escanear, propone el mayor recuento visible en una foto y distingue el recetario fijo de Buscar ideas.
+El modelo del detector y la configuración de Render se toman del repositorio existente. Conserva los archivos que ya están en el repositorio y no aparecen en el ZIP. El inventario sigue guardado en el navegador.

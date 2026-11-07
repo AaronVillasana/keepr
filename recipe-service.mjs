@@ -20,14 +20,14 @@ export function recipeAvailability(env={}){
  let routes;try{routes=recipeRoutes(env);}catch{return {configured:false,provider:null,recipients:[],fallbackReady:false,openrouterConfigured:false};}const labels={openrouter:'OpenRouter y los proveedores de sus modelos',gemini:'Google Gemini',openai:'OpenAI'};
  return {configured:true,provider:routes[0]?.provider||'keepr',recipients:routes.map(r=>labels[r.provider]),fallbackReady:routes.length>1||routes.some(r=>r.provider==='openrouter'&&r.models.length>1),openrouterConfigured:routes.some(r=>r.provider==='openrouter')};
 }
-export async function generateAvailableRecipes(input,{env={},today,count=3,previousNames=[],signal,fetchImpl=fetch,attemptTimeoutMs=30000}={}){
- const inventory=validateInventory(input,today);if(!inventory.length)return {recipes:[],notes:'Revisa tu inventario antes de crear una receta.'};
- const routes=recipeRoutes(env);if(!routes.length){if(signal?.aborted)throw new VisionError(504,'La creación de la receta se canceló.');return planRecipes(input,{today,count,previousNames});}
+export async function generateAvailableRecipes(input,{env={},today,count=3,previousNames=[],language='es',signal,fetchImpl=fetch,attemptTimeoutMs=30000}={}){
+ const inventory=validateInventory(input,today);if(!inventory.length)return {recipes:[],notes:language==='en'?'Review your inventory before finding ideas.':'Revisa tu inventario antes de crear una receta.'};
+ const routes=recipeRoutes(env);if(!routes.length){if(signal?.aborted)throw new VisionError(504,'La creación de la receta se canceló.');return planRecipes(input,{today,count,previousNames,language});}
  for(let index=0;index<routes.length;index++){
   if(signal?.aborted)throw new VisionError(504,'La creación de la receta se canceló.');
   const controller=new AbortController();const abort=()=>controller.abort();signal?.addEventListener('abort',abort,{once:true});
   const timer=setTimeout(abort,attemptTimeoutMs);
-  try{return await generateRecipes(inventory,{...routes[index],today,count,previousNames,signal:controller.signal,fetchImpl});}
+  try{return await generateRecipes(inventory,{...routes[index],today,count,previousNames,language,signal:controller.signal,fetchImpl});}
   catch(error){
    if(signal?.aborted)throw new VisionError(504,'La creación de la receta se canceló.');
    const retryable=error instanceof VisionError&&[429,502,503,504].includes(error.status)&&error.retryable!==false;

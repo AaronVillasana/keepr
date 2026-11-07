@@ -60,3 +60,13 @@ test('distingue una fecha registrada de un recordatorio y de un alimento sin fec
  assert(recipes[1].ingredients.some(i=>i.inventoryId===2));
  assert(recipes.every(recipe=>recipe.ingredients.length<items.length));
 });
+
+test('genera ideas, cantidades y pasos en inglés con nombres de inventario en ambos idiomas',()=>{
+ const result=planRecipes([
+  {id:1,name:'Egg',quantity:'1 unit',date:null},
+  {id:2,name:'Brócoli',quantity:'1 unidad',date:null}
+ ],{today:'2026-11-07',count:3,language:'en'});
+ assert.match(result.recipes[0].name,/Eggs with broccoli/i);
+ assert.match(result.recipes[0].steps.join(' '),/Wash the vegetables.*Beat the egg/);
+ assert.match(result.recipes[0].ingredients[0].amount,/To taste/);
+});

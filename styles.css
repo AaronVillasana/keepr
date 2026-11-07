@@ -443,3 +443,12 @@ header{height:76px}#content{padding-top:32px}.primary,.secondary,.hero-button{bo
 .home-priority-heading h2{margin:0;font-size:25px}
 .home-priority-heading p{margin-top:4px;color:#57554d}
 .home-priority>a.text-button{display:inline-flex;align-items:center;width:fit-content;min-height:44px;padding:0;margin:0;color:var(--action-ink)}
+
+.cookbook { margin-top: 2rem; }
+.cookbook-filters { display: flex; flex-wrap: wrap; gap: .55rem; margin: 1rem 0; }
+.cookbook-filters button { border-radius: 100px; }
+.cookbook-filters button[aria-pressed="true"] { background: #24231e; color: #fffaf0; border-color: #24231e; }
+.cookbook-status { padding: .15rem .45rem; border-radius: .5rem; background: #e6ebdc; color: #33452f; text-transform: none; letter-spacing: normal; }
+.cookbook-status.is-missing { background: #f1e5d8; color: #75432d; }
+.cookbook .recipe-row-meta { flex-wrap: wrap; }
+.cookbook .recipe-index .food-line-icon { width: 1.55rem; height: 1.55rem; }

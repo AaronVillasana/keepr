@@ -55,3 +55,7 @@ Actualización 0.9: sistema visual unificado con Manrope local, iconos vectorial
 Actualización 0.10: acabado editorial más elegante con navegación verde profundo, variantes claras de marca, marfil y detalles dorados. Se mantiene Manrope en toda la app.
 
 Actualización 0.11: Newsreader para títulos y Manrope para interfaz, siguiendo las mismas reglas en todas las pantallas. Ambas fuentes se incluyen localmente. Se mantiene el símbolo de la marca y se refina su palabra en vector.
+
+## 0.24.0
+
+Keepr Cookbook incluye 45 recetas bilingües y un filtro para las que puedes preparar con tu inventario. La opción Buscar ideas usa el idioma activo. Consulta LEEME_ACTUALIZACION.md para subir el ZIP.
