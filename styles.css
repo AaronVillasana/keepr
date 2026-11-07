@@ -371,8 +371,10 @@ header{height:76px}#content{padding-top:32px}.primary,.secondary,.hero-button{bo
  .home-simple .hero-copy h1{max-width:9em;color:#201f1b;font-family:Georgia,serif;font-size:clamp(35px,11vw,48px);line-height:1;letter-spacing:-.055em}
  .home-simple .hero-copy h1 em{display:block}
  .home-simple .hero-copy>p:not(.eyebrow){margin:12px 0 16px;color:#57554d;font-size:14px;line-height:1.5;max-width:32ch}
- .home-simple .home-actions,.start-actions{display:grid;gap:3px}
- .home-actions button,.start-actions button{justify-content:center;width:100%;min-height:46px}
+ .home-simple .home-actions,.start-actions{display:grid;grid-template-columns:minmax(0,1fr);justify-items:stretch;gap:3px}
+ .home-simple .home-actions{align-self:stretch;width:100%}
+ .home-simple .home-actions>button,.start-actions>button{justify-content:center;justify-self:stretch;width:100%;max-width:none;min-height:48px}
+ .home-simple .home-actions>.hero-button{min-height:52px}
  .home-actions .hero-button,.start-actions .primary{background:#23231f;color:#fffaf0;border-color:#23231f;border-radius:30px;font-size:14px;font-weight:700}
  .home-actions .text-button,.start-actions .text-button{color:#201f1b;font-size:14px;font-weight:700;text-align:center;display:flex;align-items:center;gap:8px}
  .photo-heading{position:relative;padding-top:calc(134px + env(safe-area-inset-top));margin-bottom:15px;min-height:calc(241px + env(safe-area-inset-top));color:#201f1b;align-content:start;gap:10px}
@@ -387,3 +389,6 @@ header{height:76px}#content{padding-top:32px}.primary,.secondary,.hero-button{bo
  .start-panel p{font-size:14px}
  .empty-recipes .start-icon{color:#99452f}
 }
+
+#language-toggle{min-height:44px;min-width:44px;border:1px solid currentColor;border-radius:24px;background:transparent;color:inherit;font:700 12px var(--font)}
+@media(max-width:760px){#language-toggle{color:#fffaf0;background:#201f1b99}}

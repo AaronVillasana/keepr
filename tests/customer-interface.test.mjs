@@ -18,3 +18,17 @@ test('portada con inventario muestra búsqueda y distingue el recordatorio de un
  assert.equal(ui.run("suggestedReview('Arroz')"),null);
  assert.equal(ui.run("suggestedReview('Producto desconocido')"),null);
 });
+
+test('el selector EN alterna Inicio, Inventario y Recetas sin cambiar los alimentos',()=>{
+ const ui=app();
+ ui.element('#language-toggle').onclick();
+ assert.match(ui.element('#content').innerHTML,/What are we cooking/);
+ assert.match(ui.element('#content').innerHTML,/Add manually/);
+ ui.run("location.hash='#inventario';render()");
+ assert.match(ui.element('#content').innerHTML,/Your inventory is empty/);
+ ui.run("location.hash='#recetas';render()");
+ assert.match(ui.element('#content').innerHTML,/No recipes yet/);
+ assert.equal(ui.run('state.items.length'),0);
+ ui.element('#language-toggle').onclick();
+ assert.match(ui.element('#content').innerHTML,/Aún no hay recetas/);
+});
