@@ -32,3 +32,19 @@ test('el selector EN alterna Inicio, Inventario y Recetas sin cambiar los alimen
  ui.element('#language-toggle').onclick();
  assert.match(ui.element('#content').innerHTML,/Aún no hay recetas/);
 });
+
+test('el escáner y el formulario muestran sus instrucciones en inglés',async()=>{
+ const ui=app();
+ ui.element('#language-toggle').onclick();
+ await ui.run('photoFlow()');
+ const scan=ui.element('#modal-body').innerHTML;
+ assert.match(scan,/Take photo opens the camera/);
+ assert.match(scan,/0 of 3 photos/);
+ assert.match(scan,/What Keepr can recognize · 82 foods/);
+ assert.match(scan,/Tomato/);
+ assert.match(scan,/Analyze food/);
+ assert.doesNotMatch(scan,/Revisa los nombres|Jitomate|Analizar alimentos/);
+ ui.element('#food-name').value='';
+ ui.run('editItem()');
+ assert.match(ui.element('#modal-body').innerHTML,/placeholder="e.g. Tomato"/);
+});

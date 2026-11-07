@@ -4,6 +4,98 @@ const $ = (s) => document.querySelector(s);
 let language='es';
 try{if(localStorage.getItem('keepr-language')==='en')language='en';}catch{}
 const t=(es,en)=>language==='en'?en:es;
+const englishFoodNames = new Map([
+ ["Aguacate", "Avocado"],
+ ["Ajo", "Garlic"],
+ ["Alcachofa", "Artichoke"],
+ ["Anchoa", "Anchovy"],
+ ["Arándano", "Blueberry"],
+ ["Arándano rojo", "Cranberry"],
+ ["Arroz", "Rice"],
+ ["Berenjena", "Eggplant"],
+ ["Betabel", "Beet"],
+ ["Brócoli", "Broccoli"],
+ ["Calabacita", "Zucchini"],
+ ["Calabaza", "Squash"],
+ ["Camarón", "Shrimp"],
+ ["Camote", "Sweet potato"],
+ ["Carne", "Meat"],
+ ["Carne de cerdo", "Pork"],
+ ["Carne de cordero", "Lamb"],
+ ["Carne de res", "Beef"],
+ ["Carne molida", "Ground meat"],
+ ["Cebolla", "Onion"],
+ ["Cereza", "Cherry"],
+ ["Champiñón", "Mushroom"],
+ ["Chícharo", "Pea"],
+ ["Chile", "Chili pepper"],
+ ["Chile verde", "Green chili"],
+ ["Chirimoya", "Cherimoya"],
+ ["Chocolate", "Chocolate"],
+ ["Cilantro", "Cilantro"],
+ ["Col", "Cabbage"],
+ ["Coliflor", "Cauliflower"],
+ ["Durazno", "Peach"],
+ ["Elote", "Corn"],
+ ["Espárrago", "Asparagus"],
+ ["Espinaca", "Spinach"],
+ ["Frambuesa", "Raspberry"],
+ ["Fresa", "Strawberry"],
+ ["Frijol", "Bean"],
+ ["Frijol blanco", "White bean"],
+ ["Garbanzo", "Chickpea"],
+ ["Grosella", "Currant"],
+ ["Guayaba", "Guava"],
+ ["Harina", "Flour"],
+ ["Hojas verdes", "Leafy greens"],
+ ["Huevo", "Egg"],
+ ["Jamón", "Ham"],
+ ["Jengibre", "Ginger"],
+ ["Jitomate", "Tomato"],
+ ["Kiwi", "Kiwi"],
+ ["Kumquat", "Kumquat"],
+ ["Leche", "Milk"],
+ ["Lechuga", "Lettuce"],
+ ["Limón", "Lime"],
+ ["Limón amarillo", "Lemon"],
+ ["Mango", "Mango"],
+ ["Mantequilla", "Butter"],
+ ["Manzana", "Apple"],
+ ["Mora", "Blackberry"],
+ ["Naranja", "Orange"],
+ ["Okra", "Okra"],
+ ["Pan", "Bread"],
+ ["Papa", "Potato"],
+ ["Papaya", "Papaya"],
+ ["Pechuga de pollo", "Chicken breast"],
+ ["Pepino", "Cucumber"],
+ ["Pera", "Pear"],
+ ["Perejil", "Parsley"],
+ ["Pescado", "Fish"],
+ ["Pimienta larga", "Long pepper"],
+ ["Pimiento", "Bell pepper"],
+ ["Piña", "Pineapple"],
+ ["Pitahaya", "Dragon fruit"],
+ ["Plátano", "Banana"],
+ ["Pollo", "Chicken"],
+ ["Poro", "Leek"],
+ ["Queso", "Cheese"],
+ ["Rábano", "Radish"],
+ ["Salchicha", "Sausage"],
+ ["Sandía", "Watermelon"],
+ ["Tofu", "Tofu"],
+ ["Uva", "Grape"],
+ ["Yogur", "Yogurt"],
+ ["Zanahoria", "Carrot"],
+]);
+const foodLabel=name=>t(name,englishFoodNames.get(name)||name);
+function scanProgressLabel(message){
+ if(language==='es')return message;
+ return message.replace('Preparando el primer análisis. Puede tardar un poco…','Preparing the first scan. This may take a moment…')
+  .replace('Preparando análisis','Preparing to scan')
+  .replace('Ya casi está. Preparando tus fotos…','Almost ready. Preparing your photos…')
+  .replace(/Analizando foto (\d+) de (\d+)/,'Scanning photo $1 of $2');
+}
 function updateLanguage(){
  if(document.documentElement)document.documentElement.lang=language;
  document.querySelectorAll('[data-en]').forEach(el=>{el.textContent=t(el.dataset.es,el.dataset.en);});
@@ -11,6 +103,7 @@ function updateLanguage(){
  button.textContent=t('EN','ES');
  button.setAttribute('lang',t('en','es'));
  button.setAttribute('aria-label',t('Switch to English','Cambiar a español'));
+ $('#close-modal').setAttribute('aria-label',t('Cerrar ventana','Close dialog'));
 }
 
 const escapeHTML = (s) => String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -259,44 +352,45 @@ function renderItems(){const items=state.items.filter(i=>foodSearch(i.name,query
 function openModal(title,body){$('#modal-kicker').textContent=title;$('#modal-body').innerHTML=body;if(!$('#modal').open)$('#modal').showModal();}
 function closeModal(){$('#modal').close();if(previewURL){URL.revokeObjectURL(previewURL);previewURL=null;}}
 function addOptions(){openModal(t("AGREGAR A MI COCINA","ADD TO MY KITCHEN"),`<h2>${t("¿Qué hay en tu refri?","What’s in your fridge?")}</h2><p>${t("Elige cómo quieres agregar tus alimentos.","Choose how to add your food.")}</p><div class="modal-actions"><button class="secondary" id="manual">${t("Agregar manualmente","Add manually")}</button><button class="primary" id="photo">${t("Analizar fotos","Analyze photos")}</button></div>`);$('#manual').onclick=()=>editItem();$('#photo').onclick=photoFlow;}
-function editItem(id){const item=state.items.find(i=>i.id===id);openModal(item?t("EDITAR ALIMENTO","EDIT FOOD"):t("REGISTRO MANUAL","MANUAL ENTRY"),`<h2>${item?t("Actualiza tu alimento","Update your food item"):t("Agregar alimento","Add food")}</h2><form id="food-form"><label>${t("Nombre","Name")}<input id="food-name" required maxlength="100" value="${escapeHTML(item?.name||'')}" placeholder="Ej. Jitomate" list="food-suggestions"></label><datalist id="food-suggestions">${FOOD_CATALOG.map(f=>`<option value="${f.name}"></option>`).join('')}</datalist><div id="food-recognition" class="recognition" aria-live="polite"></div><details class="manual-details" ${item?'open':''}><summary>${t("Cantidad y fecha de etiqueta (opcional)","Quantity and label date (optional)")}</summary><div class="form-row"><label>${t("Cantidad (opcional)","Quantity (optional)")}<input id="food-quantity" maxlength="100" value="${escapeHTML(item?.quantity==='Por confirmar'?'':item?.quantity||'')}" placeholder="Ej. 3 piezas"></label><label>${t("Fecha de etiqueta (opcional)","Label date (optional)")}<input id="food-date" type="date" value="${item?.dateKind==='estimated'?'':item?.date||''}"></label></div><p class="subtle">${t("Si el empaque trae una fecha, puedes registrarla aquí.","If there’s a date on the package, enter it here.")}</p></details><div class="modal-actions"><button class="secondary" type="button" id="cancel-form">${t("Cancelar","Cancel")}</button><button class="primary" type="submit">${t("Guardar alimento","Save food")}</button></div></form>`);$('#food-name').oninput=updateRecognition;updateRecognition();$('#cancel-form').onclick=closeModal;$('#food-form').onsubmit=e=>{e.preventDefault();const name=$('#food-name').value.trim(),quantity=$('#food-quantity').value.trim()||'Por confirmar',labelDate=$('#food-date').value; if(!name){toast(t("Escribe el nombre del alimento.","Enter the food name."));return;}const review=labelDate?null:item?.dateKind==='estimated'&&item.name===name?item.date:!item||item.name!==name?suggestedReview(name):null;const date=labelDate||review||null;const data={id:item?.id||newId(),name,quantity,date,dateKind:review?'estimated':labelDate?(item?.date===labelDate&&item.dateKind!=='estimated'?item.dateKind:'reference'):'unknown',dateEstimateNote:item&&date===item.date?item.dateEstimateNote:null,quantitySource:item&&quantity===item.quantity?item.quantitySource:'manual',emoji:resolveFood(name)?.emoji||(item?.name===name&&validFoodEmoji(item?.emoji)?item.emoji:'🍽️')};if(item)state.items=state.items.map(i=>i.id===id?data:i);else state.items.push(data);save();closeModal();render();toast('Alimento guardado.');};}
-function updateRecognition(){const name=$('#food-name').value.trim(),food=resolveFood(name);$('#food-recognition').innerHTML=name?`<span class="recognition-emoji">${foodIcon(name)}</span><div>${food?`Asociado a <strong>${escapeHTML(food.name)}</strong>${food.method==='approximate'?' · coincidencia aproximada':''}`:'Alimento personalizado'}<small>${food?'Conservaremos el nombre que escribiste.':'Puedes guardarlo con este nombre.'}</small></div>`:t("Escribe un alimento para ver su icono.","Enter a food name to see its icon.");}
+function editItem(id){const item=state.items.find(i=>i.id===id);openModal(item?t("EDITAR ALIMENTO","EDIT FOOD"):t("REGISTRO MANUAL","MANUAL ENTRY"),`<h2>${item?t("Actualiza tu alimento","Update your food item"):t("Agregar alimento","Add food")}</h2><form id="food-form"><label>${t("Nombre","Name")}<input id="food-name" required maxlength="100" value="${escapeHTML(item?.name||'')}" placeholder="${t("Ej. Jitomate","e.g. Tomato")}" list="food-suggestions"></label><datalist id="food-suggestions">${FOOD_CATALOG.map(f=>`<option value="${escapeHTML(foodLabel(f.name))}"></option>`).join('')}</datalist><div id="food-recognition" class="recognition" aria-live="polite"></div><details class="manual-details" ${item?'open':''}><summary>${t("Cantidad y fecha de etiqueta (opcional)","Quantity and label date (optional)")}</summary><div class="form-row"><label>${t("Cantidad (opcional)","Quantity (optional)")}<input id="food-quantity" maxlength="100" value="${escapeHTML(item?.quantity==='Por confirmar'?'':item?.quantity||'')}" placeholder="${t("Ej. 3 piezas","e.g. 3 pieces")}"></label><label>${t("Fecha de etiqueta (opcional)","Label date (optional)")}<input id="food-date" type="date" value="${item?.dateKind==='estimated'?'':item?.date||''}"></label></div><p class="subtle">${t("Si el empaque trae una fecha, puedes registrarla aquí.","If there’s a date on the package, enter it here.")}</p></details><div class="modal-actions"><button class="secondary" type="button" id="cancel-form">${t("Cancelar","Cancel")}</button><button class="primary" type="submit">${t("Guardar alimento","Save food")}</button></div></form>`);$('#food-name').oninput=updateRecognition;updateRecognition();$('#cancel-form').onclick=closeModal;$('#food-form').onsubmit=e=>{e.preventDefault();const name=$('#food-name').value.trim(),quantity=$('#food-quantity').value.trim()||'Por confirmar',labelDate=$('#food-date').value; if(!name){toast(t("Escribe el nombre del alimento.","Enter the food name."));return;}const review=labelDate?null:item?.dateKind==='estimated'&&item.name===name?item.date:!item||item.name!==name?suggestedReview(name):null;const date=labelDate||review||null;const data={id:item?.id||newId(),name,quantity,date,dateKind:review?'estimated':labelDate?(item?.date===labelDate&&item.dateKind!=='estimated'?item.dateKind:'reference'):'unknown',dateEstimateNote:item&&date===item.date?item.dateEstimateNote:null,quantitySource:item&&quantity===item.quantity?item.quantitySource:'manual',emoji:resolveFood(name)?.emoji||(item?.name===name&&validFoodEmoji(item?.emoji)?item.emoji:'🍽️')};if(item)state.items=state.items.map(i=>i.id===id?data:i);else state.items.push(data);save();closeModal();render();toast('Alimento guardado.');};}
+function updateRecognition(){const name=$('#food-name').value.trim(),food=resolveFood(name);$('#food-recognition').innerHTML=name?`<span class="recognition-emoji">${foodIcon(name)}</span><div>${food?`${t("Asociado a ","Matched to ")}<strong>${escapeHTML(foodLabel(food.name))}</strong>${food.method==='approximate'?t(" · coincidencia aproximada"," · approximate match"):''}`:t("Alimento personalizado","Custom item")}<small>${food?t("Conservaremos el nombre que escribiste.","We’ll keep the name you entered."):t("Puedes guardarlo con este nombre.","You can save it under this name.")}</small></div>`:t("Escribe un alimento para ver su icono.","Enter a food name to see its icon.");}
 let photoSession=0,analysisController=null;
 async function prepareImage(file){
- if(!['image/jpeg','image/png','image/webp','image/heic','image/heif'].includes(file.type)&&!(file.type===''&&/\.(jpe?g|png|webp|heic|heif)$/i.test(file.name||'')))throw new Error('Usa una foto JPG, PNG, WebP o una captura de la cámara.');
- if(file.size>20*1024*1024)throw new Error('Cada archivo debe pesar como máximo 20 MB.');
+ if(!['image/jpeg','image/png','image/webp','image/heic','image/heif'].includes(file.type)&&!(file.type===''&&/\.(jpe?g|png|webp|heic|heif)$/i.test(file.name||'')))throw new Error(t("Usa una foto JPG, PNG, WebP o una captura de la cámara.","Choose a JPG, PNG, WebP, or camera photo."));
+ if(file.size>20*1024*1024)throw new Error(t("Cada archivo debe pesar como máximo 20 MB.","Each file must be 20 MB or smaller."));
  const objectURL=URL.createObjectURL(file);
- try{const img=await new Promise((resolve,reject)=>{const i=new Image();i.onload=()=>resolve(i);i.onerror=()=>reject(new Error('No se pudo abrir esta foto. Prueba tomarla de nuevo o elegir una imagen JPG.'));i.src=objectURL;});
+ try{const img=await new Promise((resolve,reject)=>{const i=new Image();i.onload=()=>resolve(i);i.onerror=()=>reject(new Error(t("No se pudo abrir esta foto. Prueba tomarla de nuevo o elegir una imagen JPG.","Couldn’t open this photo. Retake it or choose a JPG.")));i.src=objectURL;});
  const scale=Math.min(1,2048/Math.max(img.naturalWidth,img.naturalHeight));const canvas=document.createElement('canvas');canvas.width=Math.round(img.naturalWidth*scale);canvas.height=Math.round(img.naturalHeight*scale);const context=canvas.getContext('2d');context.fillStyle='#fff';context.fillRect(0,0,canvas.width,canvas.height);context.drawImage(img,0,0,canvas.width,canvas.height);return canvas.toDataURL('image/jpeg',.9);
  }finally{URL.revokeObjectURL(objectURL);}
 }
 async function photoFlow(){
  const session=++photoSession;let images=[],ready=false,selectionVersion=0,preparing=false,analyzing=false;
- openModal(t("AGREGAR DESDE UNA FOTO","ADD FROM A PHOTO"),`<h2>${t("Fotografía tus alimentos.","Take a photo of your food.")}</h2><p>${t("Sube hasta 3 fotos. Acerca la cámara a los alimentos y procura buena iluminación.","Add up to 3 photos. Get close to the food and use good lighting.")}</p><div class="upload-box photo-capture-box"><div class="photo-source-actions"><button type="button" class="primary photo-camera" id="take-photo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 5 1-2h6l1 2h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/><circle cx="12" cy="12" r="4"/></svg>${t("Tomar foto","Take photo")}</button><button type="button" class="secondary" id="choose-photos">${t("Elegir de la galería","Choose from gallery")}</button></div><input id="camera-input" type="file" accept="image/*" capture="environment" aria-label="Tomar foto con la cámara trasera" hidden><input id="photo-input" type="file" multiple accept="image/jpeg,image/png,image/webp,image/heic,image/heif" aria-label="Elegir fotos de la galería" hidden><p class="photo-source-hint">En el celular, Tomar foto abre la cámara. También puedes elegir imágenes guardadas.</p><div id="photo-previews" class="photo-previews"></div><p id="photo-count" class="photo-count">0 de 3 fotos</p></div><p id="vision-status" class="photo-status" role="status" hidden></p><p class="subtle">Revisa los nombres antes de guardar. Puedes completar las cantidades y las fechas después.</p><details class="detector-coverage"><summary>Qué puede reconocer · 82 alimentos</summary><p>${KeeprDetection.coverage.map(escapeHTML).join(', ')}.</p><p>Si falta un alimento, puedes agregarlo manualmente.</p></details><div class="modal-actions"><button class="secondary" id="photo-manual">${t("Agregar manualmente","Add manually")}</button><button class="primary" id="analyze-photos" disabled>Analizar alimentos →</button></div>`);
+ openModal(t("AGREGAR DESDE UNA FOTO","ADD FROM A PHOTO"),`<h2>${t("Fotografía tus alimentos.","Take a photo of your food.")}</h2><p>${t("Sube hasta 3 fotos. Acerca la cámara a los alimentos y procura buena iluminación.","Add up to 3 photos. Get close to the food and use good lighting.")}</p><div class="upload-box photo-capture-box"><div class="photo-source-actions"><button type="button" class="primary photo-camera" id="take-photo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 5 1-2h6l1 2h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/><circle cx="12" cy="12" r="4"/></svg>${t("Tomar foto","Take photo")}</button><button type="button" class="secondary" id="choose-photos">${t("Elegir de la galería","Choose from gallery")}</button></div><input id="camera-input" type="file" accept="image/*" capture="environment" aria-label="${t("Tomar foto con la cámara trasera","Take a photo with the rear camera")}" hidden><input id="photo-input" type="file" multiple accept="image/jpeg,image/png,image/webp,image/heic,image/heif" aria-label="${t("Elegir fotos de la galería","Choose photos from the gallery")}" hidden><p class="photo-source-hint">${t("En el celular, Tomar foto abre la cámara. También puedes elegir imágenes guardadas.","On your phone, Take photo opens the camera. You can also choose saved photos.")}</p><div id="photo-previews" class="photo-previews"></div><p id="photo-count" class="photo-count">${t("0 de 3 fotos","0 of 3 photos")}</p></div><p id="vision-status" class="photo-status" role="status" hidden></p><p class="subtle">${t("Revisa los nombres antes de guardar. Puedes completar las cantidades y las fechas después.","Review the names before saving. You can add quantities and dates later.")}</p><details class="detector-coverage"><summary>${t("Qué puede reconocer · 82 alimentos","What Keepr can recognize · 82 foods")}</summary><p>${KeeprDetection.coverage.map(name=>escapeHTML(foodLabel(name))).join(', ')}.</p><p>${t("Si falta un alimento, puedes agregarlo manualmente.","If an item is missing, you can add it manually.")}</p></details><div class="modal-actions"><button class="secondary" id="photo-manual">${t("Agregar manualmente","Add manually")}</button><button class="primary" id="analyze-photos" disabled>${t("Analizar alimentos →","Analyze food →")}</button></div>`);
  $('#photo-manual').onclick=()=>{photoSession++;analysisController?.abort();editItem();};
  const input=$('#photo-input'),camera=$('#camera-input'),cameraButton=$('#take-photo'),galleryButton=$('#choose-photos'),button=$('#analyze-photos'),status=$('#vision-status'),previews=$('#photo-previews');
  function controls(){status.hidden=!status.textContent;const blocked=preparing||analyzing;button.disabled=blocked||!ready||!images.length;cameraButton.disabled=galleryButton.disabled=blocked||images.length>=3;input.disabled=camera.disabled=blocked||images.length>=3;previews.querySelectorAll('button').forEach(b=>b.disabled=blocked);}
- function renderPhotos(){previews.innerHTML=images.map((src,i)=>`<figure class="selected-photo"><img src="${src}" alt="Foto ${i+1} seleccionada"><button type="button" data-remove-photo="${i}" aria-label="Quitar foto ${i+1}">×</button><figcaption>Foto ${i+1}</figcaption></figure>`).join('');$('#photo-count').textContent=`${images.length} de 3 fotos`;controls();}
- async function selectPhotos(files){if(!files.length)return;if(preparing||analyzing)return;if(images.length+files.length>3){status.textContent='Puedes agregar hasta 3 fotos. Quita una antes de agregar más.';status.hidden=false;return;}const version=++selectionVersion;preparing=true;controls();status.textContent='Preparando fotos…';status.hidden=false;try{const prepared=[];for(const file of files)prepared.push(await prepareImage(file));if(session!==photoSession||version!==selectionVersion)return;images.push(...prepared);renderPhotos();status.textContent=ready?`${images.length} foto(s) listas para analizar.`:'Fotos preparadas. Puedes agregarlas manualmente si el detector no está disponible.';}catch(e){if(session===photoSession&&version===selectionVersion)status.textContent=e.message;}finally{if(session===photoSession&&version===selectionVersion){preparing=false;controls();}}}
+ function renderPhotos(){previews.innerHTML=images.map((src,i)=>`<figure class="selected-photo"><img src="${src}" alt="${t("Foto ","Photo ")}${i+1}${t(" seleccionada"," selected")}"><button type="button" data-remove-photo="${i}" aria-label="${t("Quitar foto ","Remove photo ")}${i+1}">×</button><figcaption>${t("Foto ","Photo ")}${i+1}</figcaption></figure>`).join('');$('#photo-count').textContent=`${images.length} ${t("de 3 fotos","of 3 photos")}`;controls();}
+ async function selectPhotos(files){if(!files.length)return;if(preparing||analyzing)return;if(images.length+files.length>3){status.textContent=t("Puedes agregar hasta 3 fotos. Quita una antes de agregar más.","You can add up to 3 photos. Remove one before adding more.");status.hidden=false;return;}const version=++selectionVersion;preparing=true;controls();status.textContent=t("Preparando fotos…","Preparing photos…");status.hidden=false;try{const prepared=[];for(const file of files)prepared.push(await prepareImage(file));if(session!==photoSession||version!==selectionVersion)return;images.push(...prepared);renderPhotos();status.textContent=ready?`${images.length} ${t("foto(s) listas para analizar.","photo(s) ready to scan.")}`:t("Fotos preparadas. Puedes agregarlas manualmente si el detector no está disponible.","Photos are ready. You can add items manually if scanning is unavailable.");}catch(e){if(session===photoSession&&version===selectionVersion)status.textContent=e.message;}finally{if(session===photoSession&&version===selectionVersion){preparing=false;controls();}}}
  input.onchange=()=>{const files=[...input.files];input.value='';return selectPhotos(files);};camera.onchange=()=>{const files=[...camera.files];camera.value='';return selectPhotos(files);};
  cameraButton.onclick=()=>camera.click();galleryButton.onclick=()=>input.click();
- previews.onclick=e=>{const target=e.target.closest('[data-remove-photo]');if(!target||preparing||analyzing)return;const index=Number(target.dataset.removePhoto);if(!Number.isInteger(index)||index<0||index>=images.length)return;images.splice(index,1);renderPhotos();status.textContent=images.length?`${images.length} foto(s) listas para analizar.`:'Toma una foto o elige imágenes de la galería.';};
- button.onclick=async()=>{if(!ready||!images.length||preparing||analyzing)return;analyzing=true;controls();button.textContent='Analizando…';status.textContent='Preparando análisis…';status.hidden=false;analysisController=new AbortController();const controller=analysisController;const timeout=setTimeout(()=>controller.abort(),300000);try{const data=await window.KeeprDetector.analyze(images,{signal:controller.signal,onProgress:message=>{if(session===photoSession)status.textContent=message;}});if(!Array.isArray(data.items)||!Array.isArray(data.notes))throw new Error('El detector devolvió una respuesta inválida.');if(session!==photoSession)return;reviewDetected(data);}catch(e){if(session===photoSession){status.textContent=e.name==='AbortError'?'El análisis se canceló o tardó demasiado. Prueba con una sola foto más cercana.':e.message;button.textContent='Reintentar análisis →';}}finally{clearTimeout(timeout);if(analysisController===controller)analysisController=null;if(session===photoSession){analyzing=false;controls();}}};
- ready=Boolean(window.KeeprDetector?.supported());status.textContent=ready?'':'No podemos analizar fotos en este navegador. Prueba con Safari o Chrome actualizado, o agrega tus alimentos manualmente.';status.hidden=ready;controls();
+ previews.onclick=e=>{const target=e.target.closest('[data-remove-photo]');if(!target||preparing||analyzing)return;const index=Number(target.dataset.removePhoto);if(!Number.isInteger(index)||index<0||index>=images.length)return;images.splice(index,1);renderPhotos();status.textContent=images.length?`${images.length} ${t("foto(s) listas para analizar.","photo(s) ready to scan.")}`:t("Toma una foto o elige imágenes de la galería.","Take a photo or choose images from your gallery.");};
+ button.onclick=async()=>{if(!ready||!images.length||preparing||analyzing)return;analyzing=true;controls();button.textContent=t("Analizando…","Analyzing…");status.textContent=t("Preparando análisis…","Preparing to scan…");status.hidden=false;analysisController=new AbortController();const controller=analysisController;const timeout=setTimeout(()=>controller.abort(),300000);try{const data=await window.KeeprDetector.analyze(images,{signal:controller.signal,onProgress:message=>{if(session===photoSession)status.textContent=scanProgressLabel(message);}});if(!Array.isArray(data.items)||!Array.isArray(data.notes))throw new Error(t("El detector devolvió una respuesta inválida.","The scanner returned an invalid response."));if(session!==photoSession)return;reviewDetected(data);}catch(e){if(session===photoSession){status.textContent=e.name==='AbortError'?t("El análisis se canceló o tardó demasiado. Prueba con una sola foto más cercana.","Scanning was canceled or timed out. Try one closer photo."):t(e.message,'Couldn’t scan the photo. Try again or add the food manually.');button.textContent=t("Reintentar análisis →","Retry scan →");}}finally{clearTimeout(timeout);if(analysisController===controller)analysisController=null;if(session===photoSession){analyzing=false;controls();}}};
+ ready=Boolean(window.KeeprDetector?.supported());status.textContent=ready?'':t("No podemos analizar fotos en este navegador. Prueba con Safari o Chrome actualizado, o agrega tus alimentos manualmente.","Photo scanning is unavailable in this browser. Try an updated version of Safari or Chrome, or add food manually.");status.hidden=ready;controls();
 }
 function reviewDetected(result){
  const count=result.items.length;
- openModal('REVISAR RESULTADOS',`<h2>${count?'Confirma tus alimentos':'No se identificaron alimentos'}</h2><p>${count?'Desmarca lo que no quieras guardar. Toca un alimento para corregirlo.':'Prueba con una foto más cercana o agrega un alimento a mano.'}</p><form id="review-form"><div id="detected-list" class="quick-review"></div><button type="button" class="text-button" id="add-detected">+ Agregar alimento faltante</button><p id="review-error" role="alert"></p><div class="modal-actions"><button type="button" class="secondary" id="other-photos">Otra foto</button><button class="primary" type="submit">Guardar alimentos</button></div></form>`);
+ openModal(t("REVISAR RESULTADOS","REVIEW RESULTS"),`<h2>${count?t("Confirma tus alimentos","Confirm your food"):t("No se identificaron alimentos","No food detected")}</h2><p>${count?t("Desmarca lo que no quieras guardar. Toca un alimento para corregirlo.","Uncheck anything you don’t want to save. Tap an item to edit it."):t("Prueba con una foto más cercana o agrega un alimento a mano.","Try a closer photo or add an item manually.")}</p><form id="review-form"><div id="detected-list" class="quick-review"></div><button type="button" class="text-button" id="add-detected">${t("+ Agregar alimento faltante","+ Add missing item")}</button><p id="review-error" role="alert"></p><div class="modal-actions"><button type="button" class="secondary" id="other-photos">${t("Otra foto","Choose another photo")}</button><button class="primary" type="submit">${t("Guardar alimentos","Save food")}</button></div></form>`);
  const rows=[];
  function addRow(item){
   const row=document.createElement('section');row.className='quick-review-row';
   const index=rows.length;
-  row.innerHTML=`<label class="quick-check"><input type="checkbox" class="detected-include" checked aria-label="Incluir ${escapeHTML(item.name||'alimento nuevo')}"></label><details ${item.name?'':'open'}><summary><span class="quick-name">${escapeHTML(item.name||'Alimento nuevo')}</span></summary><div class="quick-fields"><label>Nombre<input class="detected-name" maxlength="100" value="${escapeHTML(item.name)}"></label><div class="form-row"><label>Cantidad (opcional)<input class="detected-quantity" maxlength="100" value="${escapeHTML(item.quantity||'')}"></label><label>Fecha de etiqueta (opcional)<input type="date" class="detected-date" value="${escapeHTML(item.dateKind==='estimated'?'':item.date||'')}"></label></div></div></details>`;
+  const displayedName=foodLabel(item.name);
+  row.innerHTML=`<label class="quick-check"><input type="checkbox" class="detected-include" checked aria-label="${t("Incluir ","Include ")}${escapeHTML(displayedName||t("alimento nuevo","new item"))}"></label><details ${item.name?'':'open'}><summary><span class="quick-name">${escapeHTML(displayedName||t("Alimento nuevo","New item"))}</span></summary><div class="quick-fields"><label>${t("Nombre","Name")}<input class="detected-name" maxlength="100" value="${escapeHTML(displayedName)}"></label><div class="form-row"><label>${t("Cantidad (opcional)","Quantity (optional)")}<input class="detected-quantity" maxlength="100" value="${escapeHTML(item.quantity||'')}"></label><label>${t("Fecha de etiqueta (opcional)","Label date (optional)")}<input type="date" class="detected-date" value="${escapeHTML(item.dateKind==='estimated'?'':item.date||'')}"></label></div></div></details>`;
   row.dataset.index=index;
   const name=row.querySelector('.detected-name');
-  name.oninput=()=>{const title=name.value.trim()||'Alimento nuevo';row.querySelector('.quick-name').textContent=title;row.querySelector('.detected-include').setAttribute('aria-label','Incluir '+title);};
+  name.oninput=()=>{const title=name.value.trim()||t("Alimento nuevo","New item");row.querySelector('.quick-name').textContent=title;row.querySelector('.detected-include').setAttribute('aria-label',t("Incluir ","Include ")+title);};
   $('#detected-list').append(row);
-  rows.push({row,item});
+  rows.push({row,item,displayedName});
   return name;
  }
  result.items.forEach(addRow);
@@ -305,22 +399,23 @@ function reviewDetected(result){
  $('#review-form').onsubmit=e=>{
   e.preventDefault();
   const selected=rows.filter(({row})=>row.querySelector('.detected-include').checked);
-  if(!selected.length){$('#review-error').textContent='Selecciona al menos un alimento.';return;}
+  if(!selected.length){$('#review-error').textContent=t("Selecciona al menos un alimento.","Select at least one item.");return;}
   const newItems=[];
   const usedIds=new Set(state.items.map(i=>i.id));
   let id=newId();
-  for(const {row,item} of selected){
-   const name=row.querySelector('.detected-name').value.trim();
+  for(const {row,item,displayedName} of selected){
+   const enteredName=row.querySelector('.detected-name').value.trim();
+   const name=enteredName===displayedName?item.name:enteredName;
    const quantity=row.querySelector('.detected-quantity').value.trim();
    const labelDate=row.querySelector('.detected-date').value;
-   if(!name){$('#review-error').textContent='Escribe el nombre del alimento seleccionado.';row.querySelector('details').open=true;row.querySelector('.detected-name').focus();return;}
+   if(!name){$('#review-error').textContent=t("Escribe el nombre del alimento seleccionado.","Enter a name for the selected item.");row.querySelector('details').open=true;row.querySelector('.detected-name').focus();return;}
    const review=labelDate?null:suggestedReview(name);
    while(usedIds.has(id))id++;
    newItems.push({id:id++,name,quantity:quantity||'Por confirmar',date:labelDate||review,dateKind:labelDate?(labelDate===item.date&&item.dateKind!=='estimated'?item.dateKind:'reference'):review?'estimated':'unknown',quantitySource:quantity&&quantity===item.quantity?item.quantitySource:quantity?'manual':'unknown',emoji:resolveFood(name)?.emoji||'🍽️'});
   }
   state.items.push(...newItems);save();
   filter='all';query='';location.hash='inventario';render();
-  openModal('LISTO',`<h2>${newItems.length===1?'Alimento guardado':newItems.length+' alimentos guardados'}</h2><p>Ya puedes buscar preparaciones con lo que tienes.</p><div class="modal-actions"><button class="secondary" id="finish-review">Ver inventario</button><button class="primary" data-find-ideas>Buscar ideas</button></div>`);
+  openModal(t("LISTO","DONE"),`<h2>${newItems.length===1?t("Alimento guardado","Food saved"):newItems.length+t(" alimentos guardados"," items saved")}</h2><p>${t("Ya puedes buscar preparaciones con lo que tienes.","You can now find recipes using what you have.")}</p><div class="modal-actions"><button class="secondary" id="finish-review">${t("Ver inventario","View inventory")}</button><button class="primary" data-find-ideas>${t("Buscar ideas","Find ideas")}</button></div>`);
   $('#finish-review').onclick=closeModal;
  };
 }

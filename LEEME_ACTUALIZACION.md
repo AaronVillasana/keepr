@@ -1,4 +1,4 @@
-# Actualizar Keepr a 0.22.3
+# Actualizar Keepr a 0.22.5
 
 Este ZIP actualiza el repositorio existente de Keepr. Incluye los cambios de 0.21 y el nuevo diseño móvil. La 0.22.1 corrige la carga de la foto de Inicio y quita el desenfoque detrás del logo.
 
@@ -11,3 +11,7 @@ Este ZIP actualiza el repositorio existente de Keepr. Incluye los cambios de 0.2
 El repositorio existente aporta el servidor, la configuración de Render y las partes del modelo. Conserva esos archivos en su lugar. El inventario se guarda en el navegador y se puede comprobar el estado inicial abriendo una ventana privada.
 
 En 0.22.3, los botones de Inicio ocupan el ancho disponible en móvil. El selector EN/ES traduce los textos principales de la interfaz.
+
+La 0.22.4 amplía la traducción del escáner y del formulario y unifica el fondo de la navegación inferior con la página.
+
+La 0.22.5 iguala la altura de las tres fotos de encabezado en móvil.
